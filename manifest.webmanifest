@@ -1,0 +1,22 @@
+{
+  "name": "SAA 鉄板パターン単語帳",
+  "short_name": "SAA 単語帳",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f4f7",
+  "theme_color": "#e0850f",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

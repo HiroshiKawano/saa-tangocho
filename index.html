@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SAA 単語帳">
+<title>SAA 鉄板パターン単語帳</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f2f4f7;
+    --surface: #ffffff;
+    --surface-2: #e8ecf1;
+    --line: #d3d9e1;
+    --ink: #1a222d;
+    --ink-2: #4a5462;
+    --ink-3: #7b8695;
+    --accent: #e0850f;
+    --accent-ink: #9a4d00;
+    --accent-soft: #fdf1df;
+    --on-accent: #1a1208;
+    --bad: #b93a2a;
+    --bad-soft: #fbe8e5;
+    --good: #2b7f52;
+    --good-soft: #e4f3ea;
+    --focus: #2563eb;
+    --shadow: 0 1px 2px rgba(20, 30, 45, 0.06), 0 8px 24px rgba(20, 30, 45, 0.08);
+    --font-jp: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    --font-ui: "IBM Plex Sans", "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #10141a;
+      --surface: #181e26;
+      --surface-2: #212933;
+      --line: #2d3743;
+      --ink: #e6eaf0;
+      --ink-2: #b1bac6;
+      --ink-3: #7d8794;
+      --accent: #f0a23a;
+      --accent-ink: #f5b862;
+      --accent-soft: #33261a;
+      --on-accent: #1a1208;
+      --bad: #e4705f;
+      --bad-soft: #3a1e1a;
+      --good: #5cbf85;
+      --good-soft: #17301f;
+      --focus: #7aa2f7;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #10141a;
+    --surface: #181e26;
+    --surface-2: #212933;
+    --line: #2d3743;
+    --ink: #e6eaf0;
+    --ink-2: #b1bac6;
+    --ink-3: #7d8794;
+    --accent: #f0a23a;
+    --accent-ink: #f5b862;
+    --accent-soft: #33261a;
+    --on-accent: #1a1208;
+    --bad: #e4705f;
+    --bad-soft: #3a1e1a;
+    --good: #5cbf85;
+    --good-soft: #17301f;
+    --focus: #7aa2f7;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    padding-inline: 16px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  b { font-weight: 600; }
+
+  .app { max-width: 720px; margin: 0 auto; padding-block: 24px 48px; }
+
+  /* ---------- 共通部品 ---------- */
+  .eyebrow, .count, .ct, .meta, .tag, .pill, kbd {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .eyebrow { font-size: 12px; color: var(--ink-3); letter-spacing: 0.04em; }
+  .meta { font-size: 12px; color: var(--ink-3); }
+  kbd {
+    font-size: 11px;
+    color: var(--ink-3);
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0 5px;
+    line-height: 1.5;
+    background: var(--surface);
+  }
+  .pill {
+    font-size: 12px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--bad-soft);
+    color: var(--bad);
+    white-space: nowrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn:disabled:hover { background: var(--surface); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.primary kbd { color: var(--on-accent); border-color: rgba(0, 0, 0, 0.25); background: transparent; }
+  .btn.bad { color: var(--bad); }
+  .btn.bad:hover { background: var(--bad-soft); }
+  .btn.good { color: var(--good); }
+  .btn.good:hover { background: var(--good-soft); }
+  .btn.small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
+  .link {
+    background: none;
+    border: 0;
+    padding: 4px 6px;
+    border-radius: 6px;
+    color: var(--ink-3);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+  }
+  .link:hover { color: var(--ink); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .foot { margin-top: 20px; color: var(--ink-3); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .lead { color: var(--ink-2); margin: 0 0 18px; }
+
+  /* ---------- 一覧画面 ---------- */
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  h1 { font-family: var(--font-jp); font-size: 22px; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
+  .quick { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; color: var(--ink-2); font-size: 14px; cursor: pointer; }
+  .toggle input { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; }
+  .day { margin-bottom: 26px; }
+  .day-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 0 8px 8px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+  .tag { font-size: 12px; font-weight: 500; color: var(--accent-ink); white-space: nowrap; }
+  .day-head .title { flex: 1; min-width: 0; color: var(--ink-2); font-size: 13px; }
+  .deck {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 8px;
+    cursor: pointer;
+  }
+  .deck:hover { background: var(--surface); }
+  .deck .nm { flex: 1; min-width: 0; }
+  .ct { font-size: 13px; color: var(--ink-3); }
+
+  /* ---------- カード画面 ---------- */
+  .bar { display: flex; align-items: center; gap: 12px; }
+  .bar .name { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .count { font-size: 13px; color: var(--ink-3); }
+  .track { height: 4px; border-radius: 2px; background: var(--surface-2); margin-block: 12px 18px; overflow: hidden; }
+  .track > i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.2s ease; }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 300px;
+    padding: 26px 28px 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+  }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .card .eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .q {
+    font-family: var(--font-jp);
+    font-size: clamp(24px, 3.6vw, 32px);
+    font-weight: 700;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  .hint { margin-top: auto; padding-top: 12px; color: var(--ink-3); font-size: 13px; }
+  .answer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line);
+    animation: reveal 0.18s ease-out;
+  }
+  @keyframes reveal { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .answer { animation: none; }
+    .track > i { transition: none; }
+  }
+  .a-main { font-size: clamp(20px, 3vw, 26px); font-weight: 700; line-height: 1.4; color: var(--accent-ink); text-wrap: balance; }
+  .a-rest { color: var(--ink-2); }
+  .divider { border: 0; height: 2px; width: 100%; margin: 8px 0 4px; background: var(--surface-2); }
+  .n { color: var(--ink-2); }
+
+  /* ---------- 終了画面 ---------- */
+  .done {
+    padding: 26px 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .score { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 6px 0 14px; font-family: var(--font-mono); font-size: 22px; font-variant-numeric: tabular-nums; }
+  .score .bad-t { color: var(--bad); }
+  .score .good-t { color: var(--good); }
+  .score .muted { color: var(--ink-3); font-size: 15px; align-self: center; }
+  .miss-list { list-style: none; margin: 0; padding: 0; }
+  .miss-list li { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .miss-list .mq { font-family: var(--font-jp); font-weight: 500; }
+  .miss-list .ma { color: var(--accent-ink); font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px 18px 18px; min-height: 260px; }
+    .done { padding: 20px 18px; }
+    .controls .btn { flex: 1 1 auto; justify-content: center; }
+    .bar .btn kbd, .foot kbd { display: none; }
+  }
+
+  /* ---------- iPhone 向け調整 ---------- */
+  :root {
+    --font-jp: "Hiragino Sans", "Hiragino Kaku Gothic ProN", -apple-system, sans-serif;
+    --font-ui: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+    --font-mono: ui-monospace, Menlo, monospace;
+  }
+  body { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+  .btn, .deck, .link, .card, .toggle { touch-action: manipulation; }
+  .card { -webkit-user-select: none; user-select: none; }
+  .btn kbd { display: none; }
+  .bar {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 1;
+    margin: 0 -16px;
+    padding: 8px 16px;
+    background: var(--bg);
+  }
+  .controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin: 16px -16px 0;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg);
+  }
+  .done .controls { position: static; margin: 16px 0 0; padding: 0; }
+  @media (hover: none) {
+    .btn:hover, .btn.bad:hover, .btn.good:hover { background: var(--surface); }
+    .btn.primary:hover { background: var(--accent); filter: none; }
+    .deck:hover { background: none; }
+  }
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#e0850f">
+</head>
+<body>
+<main class="app" id="app"></main>
+
+<script id="cards-data" type="application/json">[{"id":"Day1-1","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"0 章 決まり文句","source":"0 章 章直下の表（6 / 15 行）","cols":{"q":"末尾の決まり文句","a":"選ぶべき方向","n":"落とすべき選択肢"},"cards":[{"q":"運用上のオーバーヘッドを最小限に抑える","a":"フルマネージド／サーバーレス。Lambda、Fargate、RDS/Aurora、DynamoDB、Athena、Transfer Family、DataSync","n":"EC2 上に自前構築（NAT インスタンス、SFTP サーバー、cron スクリプト、自己管理 Kafka/DB）"},{"q":"最もコスト効率の高い","a":"要件を満たす範囲で最安。Spot、Intelligent-Tiering、Glacier、Serverless、Gateway Endpoint、Standard-IA","n":"明記されていない冗長化（Multi-Region、Provisioned IOPS、常時稼働の Warm Standby）"},{"q":"高可用性","a":"複数 AZ。Multi-AZ RDS、複数 AZ にまたがる ASG＋ELB、AZ ごとの NAT Gateway、EFS","n":"単一 AZ 構成、Auto Scaling だけで AZ 冗長なし"},{"q":"パフォーマンスを改善","a":"キャッシュ層の追加。CloudFront、ElastiCache、DAX、Read Replica、Global Accelerator","n":"DB のスケールアップ、Multi-AZ（読み取り性能には寄与しない）"},{"q":"予測できないトラフィック","a":"自動スケール・従量課金。Lambda、DynamoDB On-Demand、Aurora Serverless v2、SQS でバッファ、ASG","n":"Reserved Instances、固定プロビジョニング"},{"q":"ディザスタリカバリ","a":"マルチリージョン。CRR、Aurora Global Database、DynamoDB Global Tables、Route 53 フェイルオーバー","n":"Multi-AZ のみ（リージョン障害には無力）"}]},{"id":"Day1-2","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"0 章 罠のパターン","source":"0 章 設問文の末尾に潜む「罠（トラップ）」のパターン（6 / 8 行）","cols":{"q":"設問のキーワード（罠のトリガー）","a":"正しいアーキテクチャ上の解釈","n":"陥りがちな誤答（トラップ）"},"cards":[{"q":"運用オーバーヘッドを最小化","a":"マネージドサービス（Lambda、Fargate、RDS 等）へのオフロードが正解。","n":"EC2 インスタンス上でカスタムスクリプトを実行"},{"q":"高可用性","a":"可用性＝AZ 障害への耐性。必ず「複数のアベイラビリティーゾーン (Multi-AZ)」にまたがる構成を選ぶ。","n":"Auto Scaling 単体、または単一 AZ での構成"},{"q":"最もコスト効率が良い","a":"可用性要件が明記されていなければ、要件を満たす単一 AZ や最安価なストレージを選ぶ。","n":"Multi-AZ や Multi-Region などの過剰な冗長化"},{"q":"読み取りパフォーマンスの向上","a":"Multi-AZ は「障害時のフェイルオーバー」用であり、読み取りスケーリングには寄与しない。リードレプリカが正解。","n":"RDS Multi-AZ を選択"},{"q":"インターネットを使用せずに接続","a":"NAT は依然としてパブリックインターネットを経由する。正解は VPC エンドポイント（Gateway/Interface）である。","n":"NAT Gateway を使用する構成"},{"q":"誰が・いつ変更したか","a":"設定変更の話題でも「誰が（WHO）」を問われたら CloudTrail。Config は「何がどう変わったか・準拠しているか」。","n":"Config を選択"}]},{"id":"Day1-3","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"7 章 IAM / Organizations","source":"7 章 アイデンティティとアクセス管理（IAM / Organizations）の鉄板パターン（5 / 14 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"一時的な認証情報","a":"**IAM ロール**（インスタンスプロファイル / タスクロール / 実行ロール）","n":"IAM ユーザーのアクセスキー配布は常に誤り。"},{"q":"別のアカウントのリソースにアクセス","a":"**IAM ロール ＋ sts:AssumeRole（信頼ポリシー）**","n":"相手アカウントに IAM ユーザーを作るのは誤り。サードパーティに引き受けさせる場合は **External ID**（混乱した代理問題の防止）。"},{"q":"組織の全アカウントで特定リージョン以外を禁止","a":"**Service Control Policies（SCP）**","n":"SCP は「許可」を与えない。管理アカウントには適用されない。IAM ポリシーとの AND で評価。"},{"q":"複数アカウントの作成と管理","a":"**Organizations**","n":"新規アカウントをセキュアに自動構築（ランディングゾーン）＋予防・検出ガードレール→**Control Tower**。"},{"q":"モバイルアプリのサインアップとサインイン","a":"**Cognito User Pools**","n":"IAM ユーザーをアプリ利用者に割り当てるのは誤り。"}]},{"id":"Day1-4","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"7 章 脅威検出とコンプライアンス","source":"7 章 脅威検出とコンプライアンスの鉄板パターン（6 / 9 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"悪意のあるアクティビティ","a":"**GuardDuty**","n":"エージェント不要で有効化するだけ。Inspector は脆弱性であり「振る舞い」は見ない。"},{"q":"SQL インジェクション","a":"**WAF**（ALB / CloudFront / API Gateway / AppSync / Cognito にアタッチ）","n":"NLB・EC2 には直接アタッチ不可。レート制限→**レートベースルール**。"},{"q":"S3 内の個人情報を検出","a":"**Macie**","n":"GuardDuty の S3 保護は脅威検出であり内容分類ではない。"},{"q":"ソフトウェアの脆弱性をスキャン","a":"**Inspector**","n":"GuardDuty は脆弱性を評価しない。"},{"q":"24 時間 365 日の DDoS 対応チーム","a":"**Shield Advanced**","n":"Shield Standard は無料・自動だが DRT・コスト保護なし。"},{"q":"セキュリティ検出結果を一元化","a":"**Security Hub**","n":"個別サービスのコンソール巡回は運用負荷。"}]},{"id":"Day1-5","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"7 章 データの暗号化と保護","source":"7 章 データの暗号化と保護の鉄板パターン（3 / 8 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"キーの使用を CloudTrail で監査","a":"**KMS**","n":"要件が「暗号化キー」なら KMS、「DB の認証情報」なら Secrets Manager。KMS の直接暗号化は 4 KB まで（大きなデータはデータキーで）。"},{"q":"SSL/TLS 証明書を無料で発行して自動更新","a":"**Certificate Manager（ACM）**","n":"CloudFront 用は us-east-1 で発行。社内 PKI・プライベート証明書→**ACM Private CA**。"},{"q":"PCI DSS の準拠レポートを監査人に提出","a":"**Artifact**","n":"自社環境の監査証拠の継続収集→**Audit Manager**。"}]},{"id":"Day1-6","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"7 章 Systems Manager と設定・シークレット管理","source":"7 章 Systems Manager と設定・シークレット管理の鉄板パターン（4 / 7 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"自動ローテーション","a":"**Secrets Manager**","n":"「ローテーション」が出たら Secrets Manager 一択。"},{"q":"ポート 22 を開けずに EC2 に接続","a":"**Systems Manager Session Manager**","n":"Bastion ホストや SSH キー配布は運用負荷・攻撃面。"},{"q":"設定値を階層構造で管理","a":"**Systems Manager Parameter Store**","n":"自動ローテーションはできない。"},{"q":"多数の EC2 に OS パッチを自動適用","a":"**Systems Manager Patch Manager（＋ Maintenance Windows）**","n":"手動 SSH でパッチは不可。"}]},{"id":"Day1-7","day":"Day1","date":"9/19（土）","dayTitle":"判断軸の固定 ＋ セキュリティ","name":"9 章 監視・監査","source":"9 章 監視・監査の鉄板パターン（4 / 20 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"監査証跡","a":"**CloudTrail**","n":"設定変更の話題でも「誰が」なら CloudTrail。イベント履歴は 90 日まで、それ以上は S3 に証跡を保存。"},{"q":"CPU 使用率のメトリクス","a":"**CloudWatch**","n":"CloudTrail はメトリクスを取らない。"},{"q":"リソース設定の変更履歴","a":"**Config**（＋ SSM Automation で修復、Aggregator で複数アカウント集約、Conformance Packs）","n":"「何がどう変わったか・準拠しているか」は Config、「誰が変えたか」は CloudTrail。"},{"q":"メモリ使用率","a":"**CloudWatch Agent（カスタムメトリクス）**","n":"EC2 のデフォルトメトリクスにメモリ・ディスク使用量は含まれない。"}]},{"id":"Day2-8","day":"Day2","date":"9/20（日）","dayTitle":"VPC 境界 ＋ S3 ＋ EC2 購入 ＋ コスト管理","name":"5 章 VPC 接続とエンドポイント","source":"5 章 VPC 接続とエンドポイントの鉄板パターン（6 / 21 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"S3 や DynamoDB へインターネットを経由せず","a":"**Gateway Endpoint**","n":"NAT Gateway はインターネット経由かつ有料。"},{"q":"プライベートサブネットからインターネットへ","a":"**NAT Gateway**（パブリックサブネットに配置、AZ ごとに 1 つで HA）","n":"NAT インスタンスは SPOF・運用負荷。IPv6 のアウトバウンドのみ→**Egress-only Internet Gateway**。"},{"q":"数千の VPC をハブ＆スポークで接続","a":"**Transit Gateway**","n":"フルメッシュのピアリングは N(N-1)/2 本必要で管理不能。"},{"q":"Web 層の SG からのみ DB 層への 3306 を許可","a":"**Security Group（別 SG を送信元に指定）**","n":"IP 範囲で指定すると Auto Scaling で破綻する。"},{"q":"自社サービスを他アカウントの VPC に公開","a":"**PrivateLink（Interface Endpoint ＋ NLB）**","n":"ピアリングは双方向で全 CIDR が見えるためセキュリティ要件に合わない。"},{"q":"特定の IP アドレスからの通信を拒否","a":"**Network ACL**","n":"Security Group は許可のみで拒否ルールを書けない。"}]},{"id":"Day2-9","day":"Day2","date":"9/20（日）","dayTitle":"VPC 境界 ＋ S3 ＋ EC2 購入 ＋ コスト管理","name":"3 章 S3 の機能","source":"3 章 S3 の機能（保護・複製・アクセス制御）の鉄板パターン（4 / 18 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となる機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"誤って削除・上書きされたオブジェクトを復元","a":"**S3 Versioning**","n":"削除に MFA を必須に→**MFA Delete**（ルートユーザーのみ有効化可）。"},{"q":"別リージョンに自動複製","a":"**Cross-Region Replication（CRR）**","n":"同一リージョン内の別バケットへ（ログ集約・本番と開発の分離）→**Same-Region Replication（SRR）**。両方 Versioning 必須。既存オブジェクトは **Batch Replication**。"},{"q":"認証情報を渡さずに外部ユーザーに一定時間だけダウンロード（アップロード）させる","a":"**Presigned URL**","n":"バケットを公開するのは不可。"},{"q":"バケットを公開せず CloudFront 経由のみ許可","a":"**Origin Access Control（OAC）**","n":"バケットポリシーで CloudFront のサービスプリンシパルのみ許可。"}]},{"id":"Day2-10","day":"Day2","date":"9/20（日）","dayTitle":"VPC 境界 ＋ S3 ＋ EC2 購入 ＋ コスト管理","name":"3 章 S3 ストレージクラス","source":"3 章 S3 ストレージクラスの鉄板パターン（5 / 9 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるストレージクラス","n":"消去すべき誤答と根拠"},"cards":[{"q":"N 日後に安い階層へ","a":"**S3 Lifecycle ルール**","n":"手動移動は運用負荷。Standard→IA は 30 日以降のみ。"},{"q":"アクセスパターンが予測できない","a":"**S3 Intelligent-Tiering**","n":"監視料はかかるが取り出し料なし。128 KB 未満は対象外。"},{"q":"7 年間の保持義務","a":"**S3 Glacier Deep Archive**（Standard 12 時間 / Bulk 48 時間）","n":"「数時間以内」「即時」の要件では不可。180 日最低保持。"},{"q":"アクセス頻度は低いが即時に取り出す","a":"**S3 Standard-IA**","n":"取り出し料と 30 日最低保持があるため頻繁アクセスには不向き。"},{"q":"数分〜数時間以内に取り出せればよい","a":"**S3 Glacier Flexible Retrieval**（Expedited 1〜5 分 / Standard 3〜5 時間 / Bulk 5〜12 時間）","n":"「ミリ秒」なら Instant Retrieval。"}]},{"id":"Day2-11","day":"Day2","date":"9/20（日）","dayTitle":"VPC 境界 ＋ S3 ＋ EC2 購入 ＋ コスト管理","name":"2 章 EC2 購入オプションと配置","source":"2 章 EC2 購入オプションと配置の鉄板パターン（3 / 13 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"中断されても再開できる","a":"**EC2 スポットインスタンス（Spot Fleet）**","n":"未使用キャパシティを最大 90% 割引で使うが 2 分前通知で中断される。DB、ステートフル、期限厳守のジョブには不可。"},{"q":"今後 1 年以上継続して使用","a":"**Reserved Instances / Savings Plans**","n":"オンデマンドのままは不正解。インスタンスファミリー・リージョンを跨いで柔軟に→**Compute Savings Plans**、特定タイプに固定して最大割引→**EC2 Instance Savings Plans / Standard RI**、将来タイプ変更の可能性→**Convertible RI**。"},{"q":"HPC","a":"**Cluster Placement Group（＋ Elastic Fabric Adapter）**","n":"単一 AZ に集約。AZ 障害耐性はない。"}]},{"id":"Day2-12","day":"Day2","date":"9/20（日）","dayTitle":"VPC 境界 ＋ S3 ＋ EC2 購入 ＋ コスト管理","name":"9 章 コスト管理","source":"9 章 コスト管理の鉄板パターン（4 / 7 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"予算（または予測）を超えたらアラート","a":"**Budgets**","n":"Cost Explorer にはアラート機能がない。"},{"q":"コストの傾向を可視化","a":"**Cost Explorer**","n":"請求書 PDF では分析不可。"},{"q":"複数アカウントの請求を一元化","a":"**Organizations の Consolidated Billing**","n":"アカウントごとの支払いは割引を失う。"},{"q":"部門・プロジェクトごとにコストを配分","a":"**Cost Allocation Tags（＋ Cost Categories）**","n":"タグなしでは配分不可。"}]},{"id":"Day3-13","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"4 章 リレーショナル（RDS / Aurora）","source":"4 章 リレーショナル（RDS / Aurora）の鉄板パターン（6 / 17 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"AZ 障害時に自動フェイルオーバー","a":"**RDS Multi-AZ（DB インスタンス）**","n":"読み取り性能向上には寄与しない。スタンバイは読めない。"},{"q":"読み取りをスケール","a":"**Read Replica**（Aurora は Reader Endpoint で自動分散）","n":"可用性のためだけにリードレプリカ単独は誤り。分析専用のレプリカ群→**Aurora Custom Endpoint**。"},{"q":"最大 15 リードレプリカ","a":"**Aurora**","n":"RDS MySQL のレプリカ数・性能では不足する場合。"},{"q":"RTO 1 分未満","a":"**Aurora Global Database**","n":"クロスリージョンレプリカより高速・低ラグ。"},{"q":"Lambda から大量の同時接続","a":"**RDS Proxy**","n":"アプリ側の接続プール実装は運用負荷。"},{"q":"間欠的で予測不能なアクセス","a":"**Aurora Serverless v2**","n":"v1 は 2025 年 3 月に提供終了。"}]},{"id":"Day3-14","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"10 章 DR 戦略","source":"10 章 章直下の表（3 / 4 行）","cols":{"q":"問題文に出てくるキーワード","a":"DR 戦略パターン","n":""},"cards":[{"q":"数時間のダウンタイムを許容","a":"**Backup & Restore**","n":"典型的な構成: Backup のクロスリージョンコピー、S3 CRR、AMI コピー、CloudFormation で再構築\nRTO / RPO: 数時間〜 / 数時間\nコスト: 最も低い"},{"q":"本番の縮小版を常時稼働","a":"**Warm Standby**","n":"典型的な構成: 別リージョンに最小台数の ASG ＋ DB レプリカ、Route 53 フェイルオーバー\nRTO / RPO: 数分 / 秒\nコスト: 高い"},{"q":"ダウンタイムゼロ","a":"**Multi-Site Active-Active**","n":"典型的な構成: DynamoDB Global Tables / Aurora Global Database、Route 53 レイテンシー or 加重ルーティング、Global Accelerator\nRTO / RPO: ほぼゼロ / ほぼゼロ\nコスト: 最も高い"}]},{"id":"Day3-15","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"10 章 RTO / RPO 逆引き","source":"10 章 RTO / RPO から機能を逆引きする（5 / 7 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"フェイルオーバーを自動化","a":"**Route 53 ヘルスチェック ＋ フェイルオーバールーティング**","n":"ヘルスチェックはリージョン外から実行される。"},{"q":"RPO 秒単位","a":"**継続的レプリケーション**（Aurora Global Database、DynamoDB Global Tables、DMS CDC、S3 CRR＋RTC）","n":"日次スナップショットでは不可。"},{"q":"RPO 1 時間","a":"**その間隔でのスナップショット / Backup のバックアッププラン**","n":"RPO より長い間隔のバックアップは要件違反。"},{"q":"S3 は AZ 障害には既に耐える","a":"**リージョン障害には CRR が必要**","n":"Standard は複数 AZ 冗長だが単一リージョン。"},{"q":"オンプレのサーバーをクラウドに DR","a":"**Elastic Disaster Recovery（DRS）**","n":"Snowball は DR ではなく移行。"}]},{"id":"Day3-16","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"6 章 メッセージング","source":"6 章 メッセージングの鉄板パターン（4 / 14 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"ピーク時のリクエストをバッファ","a":"**SQS 標準キュー**","n":"SNS はメッセージを保持しない。少なくとも 1 回配信なので冪等性が必要。"},{"q":"1 つのイベントを複数の宛先に同時配信","a":"**SNS**","n":"メッセージは保持されないため、耐久性が必要なら SNS → 複数 SQS の fan-out。"},{"q":"順序を厳密に保証","a":"**SQS FIFO キュー**","n":"300 msg/s（バッチで 3,000）。Message Group ID で並列度を確保。"},{"q":"サードパーティ SaaS のイベント","a":"**EventBridge**","n":"SNS はコンテンツベースのルーティング・SaaS 統合が弱い。毎晩 2 時に Lambda→**EventBridge Scheduler**。"}]},{"id":"Day3-17","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"2 章 EC2 Auto Scaling","source":"2 章 EC2 Auto Scaling の鉄板パターン（3 / 11 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるポリシー・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"CPU 使用率を 50% 前後に維持","a":"**Target Tracking Scaling**","n":"最も推奨。Step より設定が簡単。"},{"q":"毎日 9 時に負荷増","a":"**Scheduled Scaling**","n":"既知の周期には動的スケーリングでは遅い。"},{"q":"スケールイン時に終了前にログを S3 に退避","a":"**Lifecycle Hook（Terminating:Wait）**","n":"Termination Policy は「どれを終了するか」であり猶予は与えない。"}]},{"id":"Day3-18","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"5 章 Route 53","source":"5 章 Route 53 の鉄板パターン（4 / 12 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるルーティング・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"Active-Passive","a":"**フェイルオーバールーティング**","n":"加重ではヘルスチェック連動の自動切替にならない。"},{"q":"ユーザーに最も近い（レイテンシが最小の）リージョンへ","a":"**レイテンシールーティング**","n":"静的コンテンツのキャッシュが要件なら CloudFront。"},{"q":"Zone Apex","a":"**Alias レコード**","n":"Zone Apex に CNAME は設定できない。Alias はクエリ無料。"},{"q":"A/B テスト","a":"**加重（Weighted）ルーティング**","n":"Latency ではトラフィック比率を制御できない。"}]},{"id":"Day3-19","day":"Day3","date":"9/21（月・敬老の日）","dayTitle":"レジリエント: RDS・DR・メッセージング・ASG・Route 53・ELB","name":"5 章 ELB","source":"5 章 Elastic Load Balancing の鉄板パターン（2 / 9 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"URL パスに基づくルーティング","a":"**Application Load Balancer（ALB）**","n":"固定 IP は不可。TCP/UDP は不可。"},{"q":"静的 IP アドレス","a":"**Network Load Balancer（NLB）**","n":"ALB に固定 IP を求める選択肢は誤り。NLB→ALB の多段構成で「固定 IP ＋ L7 ルーティング」を両立できる。"}]},{"id":"Day4-20","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"4 章 NoSQL・特化型 DB","source":"4 章 NoSQL・特化型データベースの鉄板パターン（6 / 22 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"1 桁ミリ秒のレイテンシ","a":"**DynamoDB**","n":"JOIN や複雑なクエリ、トランザクション中心なら RDS。"},{"q":"読み取りをマイクロ秒に","a":"**DynamoDB Accelerator（DAX）**","n":"ElastiCache は DynamoDB 専用ではなくコード変更が大きい。書き込み高速化には効かない。"},{"q":"複数リージョンでアクティブ-アクティブ","a":"**DynamoDB Global Tables**","n":"Aurora Global は書き込みが 1 リージョン。"},{"q":"変更をきっかけに Lambda を起動","a":"**DynamoDB Streams（＋ Lambda トリガー）**","n":"ポーリングは不可。"},{"q":"トラフィックが予測不能","a":"**DynamoDB On-Demand キャパシティ**","n":"予測可能でコスト重視→**Provisioned ＋ Auto Scaling**。特定キーに集中（ホットパーティション）→パーティションキー設計の見直し。"},{"q":"データウェアハウス","a":"**Redshift**","n":"OLTP には不向き。"}]},{"id":"Day4-21","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"4 章 ElastiCache","source":"4 章 インメモリキャッシング（ElastiCache）の鉄板パターン（3 / 3 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"DB の読み取り負荷を軽減","a":"**ElastiCache**","n":"Sticky Session（セッション維持）はスケールしないので不正解。DynamoDB もセッションストアの正解になり得る。"},{"q":"Multi-AZ 自動フェイルオーバー","a":"**ElastiCache for Redis OSS / Valkey**","n":"Memcached はレプリケーション・永続性なし。高可用性が要件なら Redis 一択。"},{"q":"マルチスレッド","a":"**ElastiCache for Memcached**","n":"高可用性が問われたら不可。"}]},{"id":"Day4-22","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"3 章 ファイルシステム","source":"3 章 ファイルシステム（EFS vs FSx ファミリ）の厳格な使い分け（5 / 7 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス","n":"消去すべき誤答と根拠"},"cards":[{"q":"NFS","a":"**EFS**","n":"「Windows」「SMB」が出た瞬間に不可。EBS は単一インスタンス。"},{"q":"Windows","a":"**FSx for Windows File Server**（Multi-AZ で HA）","n":"EFS は NFS のみ。"},{"q":"HPC","a":"**FSx for Lustre**（Scratch：一時 / Persistent：長期）","n":"EFS ではスループット不足。"},{"q":"EFS のコストを削減","a":"**EFS Lifecycle Management（EFS IA / Archive）**","n":"手動移動は不可。開発環境で 1 AZ でよい→**EFS One Zone**。"},{"q":"NFS と SMB の両方でアクセス","a":"**FSx for NetApp ONTAP**","n":"Linux と Windows の両方から同一データにアクセスする要件でも正解。"}]},{"id":"Day4-23","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"3 章 EBS","source":"3 章 EBS の鉄板パターン（5 / 13 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるボリューム・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"汎用 SSD","a":"**gp3**","n":"gp2 より 20% 安く 3,000 IOPS ベース。"},{"q":"16,000 IOPS 超","a":"**io2 Block Express**（Provisioned IOPS SSD）","n":"gp3 は 16,000 IOPS 上限。"},{"q":"同一 AZ 内の複数の EC2 から同時にアタッチ","a":"**EBS Multi-Attach**（io1/io2 のみ、最大 16 台）","n":"複数 AZ なら EFS。"},{"q":"ブロックストレージ","a":"**EBS**","n":"AZ 内に閉じる。別 AZ の EC2 からは使えない。"},{"q":"ビッグデータ","a":"**st1（Throughput Optimized HDD）**","n":"ブートボリューム不可。"}]},{"id":"Day4-24","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"3 章 データ移行とハイブリッド","source":"3 章 データ移行とハイブリッドストレージの鉄板パターン（6 / 13 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス","n":"消去すべき誤答と根拠"},"cards":[{"q":"オンプレミスの NFS から S3 へ移行","a":"**DataSync**（＋ DataSync エージェント）","n":"クラウド内のストレージ間（S3⇔EFS）の移動も DataSync。Storage Gateway は「移行」ではなく「継続的なハイブリッド運用」。"},{"q":"ネットワーク帯域が限られている","a":"**Snowball Edge**（Storage Optimized / Compute Optimized）","n":"転送日数＝データ量÷帯域で 1 週間超なら Snow。Snowcone・Snowmobile は提供終了。"},{"q":"オンプレのアプリが NFS でファイルとしてアクセス","a":"**S3 File Gateway**","n":"移行目的なら DataSync。"},{"q":"データベースをダウンタイム最小で移行","a":"**Database Migration Service（DMS）**","n":"異種（Oracle→Aurora PostgreSQL）はスキーマ変換に **Schema Conversion Tool（SCT）** を併用。"},{"q":"iSCSI でブロックとしてアクセス","a":"**Volume Gateway（Stored Volumes）**","n":"「頻繁に使うデータのみローカル、主データは S3」「ローカルストレージの拡張」→**Volume Gateway（Cached Volumes）**。"},{"q":"複数のサービスを一元的にバックアップ","a":"**Backup**（＋ Vault Lock）","n":"サービスごとの個別スクリプトは運用負荷。"}]},{"id":"Day4-25","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"2 章 コンテナ・サーバーレス・PaaS","source":"2 章 コンテナ・サーバーレス・PaaS の鉄板パターン（5 / 11 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"イベント駆動","a":"**Lambda**","n":"**15 分**を超える処理、10 GB 超のメモリ、常時稼働は不可→Fargate / Batch / EC2。"},{"q":"コンテナ","a":"**Fargate（ECS / EKS）**","n":"EC2 起動タイプは OS パッチが必要。Fargate は「サーバーレスコンテナ」。"},{"q":"Lambda を順に呼び出す","a":"**Step Functions**","n":"Lambda チェーン呼び出しはアンチパターン（第6章）。"},{"q":"Kubernetes","a":"**EKS**","n":"シンプルに使う→**ECS**。"},{"q":"数十万件のバッチジョブ","a":"**Batch**","n":"Lambda は 15 分制限。SQS＋EC2 自前実装は運用負荷。"}]},{"id":"Day4-26","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"5 章 エッジ配信","source":"5 章 エッジ配信（CloudFront / Global Accelerator）の鉄板パターン（4 / 9 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"世界中のユーザーに低レイテンシで配信","a":"**CloudFront**（ACM 証明書は us-east-1）","n":"ELB はリージョン内、Global Accelerator はキャッシュしない。"},{"q":"2 つの静的 IP アドレス","a":"**Global Accelerator**","n":"CloudFront は HTTP/HTTPS のキャッシュ用。「キャッシュ不要」「固定 IP」が出たら Global Accelerator。"},{"q":"有料会員のみ","a":"**Signed URL（個別ファイル）/ Signed Cookies（複数ファイル）**","n":"S3 Presigned URL は CloudFront を経由しない。"},{"q":"エッジで軽量なヘッダー操作","a":"**CloudFront Functions**","n":"複雑な処理（オリジンリクエストの変更、認証、外部 API 呼び出し）→**Lambda@Edge**。"}]},{"id":"Day4-27","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"6 章 ワークフロー・ストリーミング・API","source":"6 章 ワークフロー・ストリーミング・API の鉄板パターン（3 / 7 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"リアルタイム（サブ秒）","a":"**Kinesis Data Streams**","n":"Firehose は保持・再処理ができない。保持は 24 時間〜365 日。"},{"q":"ストリーミングデータを S3 に配信","a":"**Data Firehose**","n":"サブ秒・カスタムコンシューマー・保持が要件なら Data Streams。Firehose はデータを保存しない。"},{"q":"REST API","a":"**API Gateway**","n":"統合タイムアウト 29 秒、ペイロード 10 MB。チャットなど双方向→**WebSocket API**。VPC 内のプライベート API を公開→**VPC Link（NLB）**。"}]},{"id":"Day4-28","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"8 章 分析基盤","source":"8 章 分析基盤の鉄板パターン（4 / 10 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス・機能","n":"消去すべき誤答と根拠"},"cards":[{"q":"S3 上のデータに標準 SQL で直接クエリ","a":"**Athena**","n":"Redshift へのロードや EMR クラスター起動は過剰。"},{"q":"サーバーレス ETL","a":"**Glue（＋ Glue Data Catalog）**","n":"「S3 ＋ Glue Data Catalog ＋ Athena」がデータレイクの標準構成。コード不要の視覚的変換→**Glue DataBrew / Glue Studio**。"},{"q":"BI ダッシュボード","a":"**QuickSight**","n":"自前の BI サーバーは運用負荷。"},{"q":"全文検索","a":"**OpenSearch Service**","n":"Athena はインタラクティブ検索に不向き。"}]},{"id":"Day4-29","day":"Day4","date":"9/22（火・国民の休日）","dayTitle":"高性能: NoSQL・キャッシュ・EFS/FSx・EBS・移行・コンテナ・エッジ・ストリーミング・分析","name":"8 章 ML 識別表","source":"8 章 機械学習・AI サービスの識別パターン（4 / 14 行）","cols":{"q":"問題文に出てくるキーワード","a":"正解となるサービス","n":""},"cards":[{"q":"音声をテキストに変換（文字起こし）","a":"**Transcribe**","n":""},{"q":"テキストから感情やキーフレーズを抽出","a":"**Comprehend（Comprehend Medical）**","n":""},{"q":"カスタム ML モデルの構築とデプロイ","a":"**SageMaker**","n":""},{"q":"生成 AI アプリケーションの構築","a":"**Bedrock**","n":""}]},{"id":"Day5-30","day":"Day5","date":"9/23（水・秋分の日、試験前日）","dayTitle":"新規ゼロ、総復習と当日準備","name":"11 章 誤答パターン","source":"","cols":{"q":"問題文の要件","a":"正解の方向","n":"誤答となる選択肢"},"cards":[{"q":"運用オーバーヘッド最小","a":"マネージド / サーバーレス","n":"EC2 上の自前構築（NAT インスタンス、SFTP サーバー、Kafka、cron、自己管理 DB）"},{"q":"高可用性（AZ 障害）","a":"Multi-AZ","n":"Read Replica 単独 / 単一 AZ の ASG"},{"q":"読み取り性能の向上","a":"Read Replica / ElastiCache / DAX","n":"RDS Multi-AZ"},{"q":"アプリからのアクセス","a":"IAM ロール","n":"アクセスキーの埋め込み / IAM ユーザー"},{"q":"インターネットを経由しない","a":"VPC エンドポイント / PrivateLink / Direct Connect","n":"NAT Gateway / Internet Gateway"},{"q":"複数 AZ から共有マウント","a":"EFS / FSx","n":"EBS"}]}]</script>
+<script>
+  (() => {
+    'use strict';
+
+    const DECKS = JSON.parse(document.getElementById('cards-data').textContent);
+    const KEY_MISSED = 'saa-tangocho-missed-v1';
+    const KEY_SHUFFLE = 'saa-tangocho-shuffle-v1';
+    const app = document.getElementById('app');
+
+    // ---------- 永続化（保存できない環境でも動作は止めない）
+    function load(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch (error) {
+        return fallback;
+      }
+    }
+    function save(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        // 保存不可（プライベートモード等）なら黙って続ける
+      }
+    }
+
+    // ---------- データ整形
+    const cardKey = (deckName, card) => `${deckName}|${card.q}`;
+    const flatCards = (deck) => deck.cards.map((c) => ({
+      ...c, deckName: deck.name, source: deck.source, cols: deck.cols, key: cardKey(deck.name, c),
+    }));
+    const ALL_CARDS = DECKS.flatMap(flatCards);
+    const DAYS = [...new Set(DECKS.map((d) => d.day))].map((day) => {
+      const decks = DECKS.filter((d) => d.day === day);
+      return { day, date: decks[0].date, title: decks[0].dayTitle, decks };
+    });
+
+    // Fisher–Yates（元の配列は変更せず、コピーを並べ替える）
+    function shuffled(list) {
+      const out = [...list];
+      for (let i = out.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+      }
+      return out;
+    }
+
+    // ---------- 状態
+    let state = {
+      screen: 'list',
+      title: '',
+      cards: [],
+      pos: 0,
+      flipped: false,
+      judged: {},
+      shuffle: load(KEY_SHUFFLE, false) === true,
+      missed: new Set(load(KEY_MISSED, [])),
+    };
+    function setState(patch) {
+      state = { ...state, ...patch };
+      render();
+    }
+
+    // ---------- 表示用ユーティリティ
+    const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ESC[ch]);
+    const fmt = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    const missedIn = (cards) => cards.filter((c) => state.missed.has(c.key)).length;
+
+    // 正解セルを「太字のサービス名」と「補足」に分ける
+    function splitAnswer(a) {
+      const bold = [...a.matchAll(/\*\*(.+?)\*\*/g)].map((m) => m[1]);
+      if (bold.length === 0) return { main: a, rest: '' };
+      return { main: bold.join(' ／ '), rest: a.replace(/\*\*(.+?)\*\*/g, '').trim() };
+    }
+
+    // ---------- 一覧画面
+    function renderList() {
+      const missedTotal = missedIn(ALL_CARDS);
+      const missedBtn = missedTotal
+        ? `<button class="btn bad" data-action="missed">✕ 落とした行だけ <span class="ct">${missedTotal}</span></button>`
+        : '';
+      const clearBtn = missedTotal
+        ? `<p class="foot"><button class="link" data-action="clear-missed">落とした印をすべて消す</button></p>`
+        : '';
+      return `
+        <header class="head">
+          <h1>SAA 鉄板パターン単語帳</h1>
+          <span class="meta">${DECKS.length} 表 · ${ALL_CARDS.length} 枚</span>
+        </header>
+        <p class="lead">表を選ぶとキーワードが出る。タップで正解と根拠を表示。左スワイプで次へ、右スワイプで前へ。</p>
+        <div class="quick">
+          <button class="btn" data-action="all">全表を通しで <span class="ct">${ALL_CARDS.length}</span></button>
+          ${missedBtn}
+          <label class="toggle" for="shuffle"><input type="checkbox" id="shuffle" ${state.shuffle ? 'checked' : ''}>シャッフル</label>
+        </div>
+        ${DAYS.map(renderDay).join('')}
+        ${clearBtn}`;
+    }
+    function renderDay(day) {
+      const n = day.decks.reduce((sum, d) => sum + d.cards.length, 0);
+      return `
+        <section class="day">
+          <div class="day-head">
+            <span class="tag">${esc(day.day)} · ${esc(day.date)}</span>
+            <span class="title">${esc(day.title)}</span>
+            <button class="link" data-action="day" data-day="${esc(day.day)}">この日の全表 ${n}</button>
+          </div>
+          ${day.decks.map(renderDeckRow).join('')}
+        </section>`;
+    }
+    function renderDeckRow(deck) {
+      const m = missedIn(flatCards(deck));
+      return `
+        <button class="deck" data-action="deck" data-id="${esc(deck.id)}">
+          <span class="nm">${esc(deck.name)}</span>
+          ${m ? `<span class="pill">✕ ${m}</span>` : ''}
+          <span class="ct">${deck.cards.length} 枚</span>
+        </button>`;
+    }
+
+    // ---------- カード画面
+    function renderCard() {
+      const card = state.cards[state.pos];
+      const total = state.cards.length;
+      const pct = (state.pos / total) * 100;
+      const deckTag = card.deckName !== state.title ? `<span>· ${esc(card.deckName)}</span>` : '';
+      const wasMissed = state.missed.has(card.key) ? '<span class="pill">✕ 前回落とした</span>' : '';
+      const body = state.flipped
+        ? renderAnswer(card)
+        : '<div class="hint">タップで答えを表示</div>';
+      return `
+        <div class="bar">
+          <button class="btn small" data-action="list">← 一覧 <kbd>Esc</kbd></button>
+          <span class="name">${esc(state.title)}</span>
+          <span class="count">${state.pos + 1} / ${total}</span>
+        </div>
+        <div class="track"><i style="width:${pct}%"></i></div>
+        <div class="card" role="button" tabindex="0" data-action="advance" aria-live="polite">
+          <div class="eyebrow"><span>${esc(card.cols.q)}</span>${deckTag}${wasMissed}</div>
+          <div class="q">${esc(card.q)}</div>
+          ${body}
+        </div>
+        <div class="controls">${renderControls()}</div>
+        <p class="foot">
+          <span>元の表: ${esc(card.source || card.deckName)}</span>
+          <span>左スワイプ 次へ · 右スワイプ 前へ</span>
+        </p>`;
+    }
+    function renderAnswer(card) {
+      const { main, rest } = splitAnswer(card.a);
+      const label = card.cols.n ? `<div class="eyebrow">${esc(card.cols.n)}</div>` : '';
+      const note = card.n ? `<hr class="divider">${label}<div class="n">${fmt(card.n)}</div>` : '';
+      return `
+        <div class="answer">
+          <div class="eyebrow">${esc(card.cols.a)}</div>
+          <div class="a-main">${fmt(main)}</div>
+          ${rest ? `<div class="a-rest">${fmt(rest)}</div>` : ''}
+          ${note}
+        </div>`;
+    }
+    function renderControls() {
+      const prev = `<button class="btn" data-action="back" ${state.pos === 0 ? 'disabled' : ''}>← 前へ</button>`;
+      if (!state.flipped) {
+        return `${prev}<button class="btn primary" data-action="advance">答えを見る →</button>`;
+      }
+      return `${prev}
+        <button class="btn bad" data-action="miss">✕ 落とした <kbd>x</kbd></button>
+        <button class="btn good" data-action="ok">○ 即答できた <kbd>o</kbd></button>
+        <button class="btn primary" data-action="advance">次へ →</button>`;
+    }
+
+    // ---------- 終了画面
+    function renderDone() {
+      const miss = state.cards.filter((c) => state.judged[c.key] === 'miss');
+      const ok = Object.values(state.judged).filter((j) => j === 'ok').length;
+      const unjudged = state.cards.length - miss.length - ok;
+      const list = miss.length
+        ? `<ul class="miss-list">${miss.map((c) => `
+            <li><span class="mq">${esc(c.q)}</span><span class="ma">${fmt(splitAnswer(c.a).main)}</span></li>`).join('')}</ul>`
+        : '<p class="lead">落とした行はなし。</p>';
+      const retryMissed = miss.length
+        ? '<button class="btn primary" data-action="retry-missed">落とした行だけもう一度</button>'
+        : '';
+      return `
+        <div class="bar">
+          <button class="btn small" data-action="list">← 一覧 <kbd>Esc</kbd></button>
+          <span class="name">${esc(state.title)}</span>
+          <span class="count">${state.cards.length} / ${state.cards.length}</span>
+        </div>
+        <div class="track"><i style="width:100%"></i></div>
+        <div class="done">
+          <div class="eyebrow">終了 · ${state.cards.length} 枚</div>
+          <div class="score">
+            <span class="bad-t">✕ ${miss.length}</span>
+            <span class="good-t">○ ${ok}</span>
+            ${unjudged ? `<span class="muted">未判定 ${unjudged}</span>` : ''}
+          </div>
+          ${list}
+          <div class="controls">
+            ${retryMissed}
+            <button class="btn" data-action="retry">最初から</button>
+            <button class="btn" data-action="list">表の一覧へ</button>
+          </div>
+        </div>`;
+    }
+
+    function render() {
+      const views = { list: renderList, card: renderCard, done: renderDone };
+      app.innerHTML = views[state.screen]();
+      if (state.screen === 'card') {
+        const card = app.querySelector('.card');
+        if (card) card.focus({ preventScroll: true });
+      }
+    }
+
+    // ---------- 操作
+    function start(title, cards) {
+      if (cards.length === 0) return;
+      const ordered = state.shuffle ? shuffled(cards) : cards;
+      setState({ screen: 'card', title, cards: ordered, pos: 0, flipped: false, judged: {} });
+    }
+    function goList() {
+      setState({ screen: 'list' });
+    }
+    function next() {
+      if (state.pos + 1 >= state.cards.length) setState({ screen: 'done' });
+      else setState({ pos: state.pos + 1, flipped: false });
+    }
+    function back() {
+      if (state.pos > 0) setState({ pos: state.pos - 1, flipped: false });
+    }
+    function advance() {
+      if (state.flipped) next();
+      else setState({ flipped: true });
+    }
+    // ✕ は印を付けて次へ、○ は印を消して次へ
+    function judge(isMiss) {
+      if (!state.flipped) return;
+      const card = state.cards[state.pos];
+      const missed = new Set(state.missed);
+      if (isMiss) missed.add(card.key);
+      else missed.delete(card.key);
+      save(KEY_MISSED, [...missed]);
+      state = { ...state, missed, judged: { ...state.judged, [card.key]: isMiss ? 'miss' : 'ok' } };
+      next();
+    }
+    function clearMissed() {
+      if (!window.confirm('落とした印をすべて消しますか？')) return;
+      save(KEY_MISSED, []);
+      setState({ missed: new Set() });
+    }
+
+    const ACTIONS = {
+      deck: (el) => {
+        const deck = DECKS.find((d) => d.id === el.dataset.id);
+        if (deck) start(deck.name, flatCards(deck));
+      },
+      day: (el) => {
+        const day = DAYS.find((d) => d.day === el.dataset.day);
+        if (day) start(`${day.day} の全表`, day.decks.flatMap(flatCards));
+      },
+      all: () => start('全表を通しで', ALL_CARDS),
+      missed: () => start('落とした行だけ', ALL_CARDS.filter((c) => state.missed.has(c.key))),
+      'clear-missed': clearMissed,
+      list: goList,
+      advance,
+      back,
+      miss: () => judge(true),
+      ok: () => judge(false),
+      retry: () => start(state.title, state.cards),
+      'retry-missed': () => start(`${state.title}（落とした行）`, state.cards.filter((c) => state.missed.has(c.key))),
+    };
+
+    app.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-action]');
+      if (!el || el.disabled) return;
+      const fn = ACTIONS[el.dataset.action];
+      if (fn) fn(el);
+    });
+    app.addEventListener('change', (e) => {
+      if (e.target.id !== 'shuffle') return;
+      save(KEY_SHUFFLE, e.target.checked);
+      setState({ shuffle: e.target.checked });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (state.screen !== 'card') {
+        if (e.key === 'Escape' && state.screen === 'done') goList();
+        return;
+      }
+      // ボタンにフォーカスがある時の Space / Enter はボタン自身のクリックに任せる
+      const onControl = e.target.closest && e.target.closest('button, input, a');
+      const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      const handlers = {
+        ArrowRight: advance,
+        ArrowLeft: back,
+        Escape: goList,
+        x: () => judge(true),
+        o: () => judge(false),
+        ' ': onControl ? null : advance,
+        Enter: onControl ? null : advance,
+      };
+      const fn = handlers[key];
+      if (!fn) return;
+      e.preventDefault();
+      fn();
+    });
+
+    render();
+  })();
+</script>
+<script>
+  (() => {
+    'use strict';
+    // 左右スワイプを ← / → キー操作に変換する（タップは従来どおりクリック扱い）
+    const THRESHOLD = 50;
+    const MAX_MS = 600;
+    let start = null;
+    document.addEventListener('touchstart', (e) => {
+      const onControl = e.target.closest && e.target.closest('button, input, a');
+      if (e.touches.length !== 1 || onControl || !document.querySelector('.card')) {
+        start = null;
+        return;
+      }
+      start = { x: e.touches[0].clientX, y: e.touches[0].clientY, at: Date.now() };
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (!start) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      const elapsed = Date.now() - start.at;
+      start = null;
+      if (elapsed > MAX_MS || Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 2) return;
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: dx < 0 ? 'ArrowRight' : 'ArrowLeft' }));
+    }, { passive: true });
+  })();
+</script>
+<script>
+  // https（または localhost）で開いたときだけ Service Worker を登録し、2 回目以降はオフラインでも動くようにする
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      // 登録できなくてもオンラインなら通常どおり動く
+    });
+  }
+</script>
+</body>
+</html>
