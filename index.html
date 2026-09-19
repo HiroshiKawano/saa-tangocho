@@ -298,10 +298,11 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="theme-color" content="#e0850f">
 <style>
-  /* ホーム画面アプリ版: キーワードと正解のサービス名を約 2 倍に（iPhone 幅 390px で 48px / 40px）。
-     長い文字列は一段小さく（40px / 32px）、文章型の正解（決まり文句・罠・誤答パターン）は元のまま */
-  .q { font-size: clamp(44px, 12.3vw, 52px); line-height: 1.3; overflow-wrap: break-word; }
-  .q.q-long { font-size: clamp(36px, 10.3vw, 44px); }
+  /* ホーム画面アプリ版: キーワードは約 1.3 倍（iPhone 幅 390px で 32px、長い文字列は 26px）、
+     正解のサービス名は約 2 倍（40px、長い文字列は 32px）。文章型の正解（決まり文句・罠・誤答パターン）は元のまま。
+     キーワードは文節の境目（ゼロ幅スペース）でだけ折り返し、単語の途中では改行しない */
+  .q { font-size: clamp(28px, 8.2vw, 34px); line-height: 1.35; word-break: keep-all; overflow-wrap: anywhere; }
+  .q.q-long { font-size: clamp(24px, 6.7vw, 28px); }
   .a-main.a-name { font-size: clamp(36px, 10.3vw, 44px); line-height: 1.3; overflow-wrap: break-word; }
   .a-main.a-name.a-long { font-size: clamp(30px, 8.2vw, 36px); }
 </style>
@@ -389,6 +390,33 @@
     const visualWidth = (s) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 0x2e7f ? 1 : 0.55), 0);
     const longClass = (s, limit, cls) => (visualWidth(s) > limit ? ` ${cls}` : '');
 
+    // 日本語のキーワードが単語の途中で折り返されないよう、文節らしい境目にだけゼロ幅スペースを入れる。
+    // 境目: ひらがなの後に漢字・カタカナ・英数が来る所、漢字とカタカナの切り替わり、句読点や括弧の前後
+    const isHira = (ch) => /[ぁ-ゟ]/.test(ch);
+    const isKata = (ch) => /[゠-ヿ]/.test(ch);
+    const isKanji = (ch) => /[一-鿿]/.test(ch);
+    const isLatin = (ch) => /[A-Za-z0-9０-９]/.test(ch);
+    function isPhraseBoundary(ch, next) {
+      if (isHira(ch) && (isKanji(next) || isKata(next) || isLatin(next))) return true;
+      if ((isKata(ch) && isKanji(next)) || (isKanji(ch) && isKata(next))) return true;
+      return /[、。・）」]/.test(ch) || /[（「]/.test(next);
+    }
+    // 8 文字以上続くカタカナ語の直後の助詞（ひらがな）の前も境目にし、長い外来語が 1 行に収まらない事態を減らす
+    const LONG_KATA_RUN = 8;
+    function phraseBreaks(s) {
+      const chars = [...s];
+      let kataRun = 0;
+      return chars.map((ch, i) => {
+        kataRun = isKata(ch) ? kataRun + 1 : 0;
+        const next = chars[i + 1];
+        const cut = next !== undefined && (isPhraseBoundary(ch, next) || (kataRun >= LONG_KATA_RUN && isHira(next)));
+        return cut ? `${ch}​` : ch;
+      }).join('');
+    }
+    // 折り返し位置で区切った文節のうち最長のものの幅（全角換算）。1 行に収まらない文節があれば一段小さく表示する
+    const maxSegmentWidth = (s) => Math.max(...phraseBreaks(s).split(/[​ ]/).map(visualWidth));
+    const qSizeClass = (q) => (visualWidth(q) > 24 || maxSegmentWidth(q) > 9 ? ' q-long' : '');
+
     // ---------- 一覧画面
     function renderList() {
       const missedTotal = missedIn(ALL_CARDS);
@@ -453,7 +481,7 @@
         <div class="track"><i style="width:${pct}%"></i></div>
         <div class="card" role="button" tabindex="0" data-action="advance" aria-live="polite">
           <div class="eyebrow"><span>${esc(card.cols.q)}</span>${deckTag}${wasMissed}</div>
-          <div class="q${longClass(card.q, 24, 'q-long')}">${esc(card.q)}</div>
+          <div class="q${qSizeClass(card.q)}">${esc(phraseBreaks(card.q))}</div>
           ${body}
         </div>
         <div class="controls">${renderControls()}</div>
