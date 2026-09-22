@@ -1,5 +1,5 @@
 // キャッシュ名にページ内容のハッシュを含め、更新時に古いキャッシュを捨てる
-const CACHE = 'saa-tangocho-8abd991b06d8';
+const CACHE = 'saa-tangocho-1cf48995ecc7';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png'];
 
 self.addEventListener('install', (event) => {
