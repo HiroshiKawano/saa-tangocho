@@ -1,6 +1,7 @@
 // キャッシュ名にページ内容のハッシュを含め、更新時に古いキャッシュを捨てる
-const CACHE = 'saa-tangocho-1f80779b4312';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png'];
+const CACHE = 'saa-tangocho-804334936293';
+const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png", "./kouseizu.html", "./kouseizu.webmanifest", "./kouseizu-icon-180.png", "./kouseizu-icon-512.png"];
+const PAGES = ["/", "/index.html", "/kouseizu.html"];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -18,11 +19,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// ページ本体（index.html）はネットワーク優先: オンラインなら常に最新版、オフラインならキャッシュ。
+// ページ本体（index.html / kouseizu.html）はネットワーク優先: オンラインなら常に最新版、オフラインならキャッシュ。
 // アイコンとマニフェストはキャッシュ優先
 const isPage = (request) => {
   const path = new URL(request.url).pathname;
-  return request.mode === 'navigate' || path.endsWith('/') || path.endsWith('/index.html');
+  return request.mode === 'navigate' || PAGES.some((page) => path.endsWith(page));
 };
 
 const networkFirst = (request) =>

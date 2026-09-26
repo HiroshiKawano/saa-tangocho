@@ -1,0 +1,22 @@
+{
+  "name": "SAA 定番構成図 単語帳",
+  "short_name": "SAA 構成図",
+  "start_url": "./kouseizu.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f4f7",
+  "theme_color": "#147eba",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "kouseizu-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "kouseizu-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

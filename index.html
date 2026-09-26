@@ -294,6 +294,7 @@
     .btn:hover, .btn.bad:hover, .btn.good:hover { background: var(--surface); }
     .btn.primary:hover { background: var(--accent); filter: none; }
     .deck:hover { background: none; }
+    .deck-main:hover .ttl { color: inherit; }
   }
 </style>
 
@@ -308,6 +309,8 @@
   .q.q-long { font-size: clamp(24px, 6.7vw, 28px); }
   .a-main.a-name { font-size: clamp(36px, 10.3vw, 44px); line-height: 1.3; overflow-wrap: break-word; }
   .a-main.a-name.a-long { font-size: clamp(30px, 8.2vw, 36px); }
+  /* もう一方のアプリへのリンク（一覧画面の末尾） */
+  .xlink { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -435,7 +438,7 @@
       return `
         <header class="head">
           <h1>SAA 鉄板パターン単語帳</h1>
-          <span class="meta">${DECKS.length} 表 · ${ALL_CARDS.length} 枚 · 9/23 18:10 版</span>
+          <span class="meta">${DECKS.length} 表 · ${ALL_CARDS.length} 枚 · 9/27 02:27 版</span>
         </header>
         <p class="lead">表を選ぶとキーワードが出る。タップで正解と根拠を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -444,7 +447,7 @@
           <label class="toggle" for="shuffle"><input type="checkbox" id="shuffle" ${state.shuffle ? 'checked' : ''}>シャッフル</label>
         </div>
         ${DAYS.map(renderDay).join('')}
-        ${clearBtn}`;
+        ${clearBtn}<p class="foot"><a class="xlink" href="./kouseizu.html">構成図の単語帳へ →</a></p>`;
     }
     function renderDay(day) {
       const n = day.decks.reduce((sum, d) => sum + d.cards.length, 0);
