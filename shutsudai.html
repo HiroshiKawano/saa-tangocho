@@ -184,7 +184,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   <header style="display:grid;gap:14px">
     <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
     <h1>SAA 出題率と優先順位</h1>
-    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日の問数と試験日に収まる分だけを優先順に 1 周する計画にした。</p>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日 10 問で主要分の 477 問だけを 1 周し、間違いを 2 周目で潰す計画にした。</p>
     <div class="tiles">
       <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
       <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。全問やる唯一の分野</div></div>
@@ -240,19 +240,19 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="priority">
     <h2>優先順位</h2>
-    <p>1 日の問数と試験日で解ける数が決まるので、全 773 問を解く前提にしない。本番換算が大きい順に並べ、2 周目の分を残して入るところまでを 1 周する。1 問の価値が高い分野2 だけは全問。順番は「サイトの出題率 × 本番の配点」で、先に解く分野ほど間違い直しの回数が増えるため、本番で重くサイトで少ない分野2 を最初に置く。主要分の後は本番換算の大きい小分類から足す。</p>
+    <p>毎日の仕事があるので、1 周は主要分の 477 問に固定する。全 773 問は解かない。本番換算の大きい小分類に絞り、1 問の価値が高い分野2 だけは全問。順番は「サイトの出題率 × 本番の配点」で、先に解く分野ほど間違い直しの回数が増えるため、本番で重くサイトで少ない分野2 を最初に置く。残りの小分類は 1 周に入れず、2 周目で 80% を超えて予備日が残ったときだけ下の表の順に手で足す。</p>
     <div class="phases" id="phases"></div>
   </section>
 
   <section id="plan">
     <h2>日程</h2>
-    <p>1 問 2 分で解き、同じくらいの時間で見直す。1 日 10 問なら合わせて 40 分ほど。優先順に並べた問題を 1 日の問数で区切り、間違いは 3 割と見込んで 2 周目を試験日の直前に置いた。余った日は予備日。1 日の問数か試験日を変えると表が組み直される。</p>
+    <p>1 問 2 分で解き、同じくらいの時間で見直す。1 日 10 問なら合わせて 40 分ほど。477 問を 1 日の問数で区切り、間違いは 3 割と見込んで 2 周目をその後に置いた。2 周目が終わってから試験日までは予備日で、遅れの吸収と総復習に使う。1 日の問数か試験日を変えると表が組み直される。</p>
     <div class="pace"><label for="daily">1 日の問数</label><input type="number" id="daily" min="5" max="60" step="5" value="10"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-23"></div>
     <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
     <div class="plan-foot"><span id="plan-progress"></span><button type="button" id="plan-reset">チェックを全部外す</button></div>
     <h3>次に足すならこの順</h3>
-    <p>試験日を後ろにするか 1 日の問数を増やすと、この順に 1 周へ入る。2 周目で 80% を超えて予備日が残っていたら、手で足す。</p>
+    <p>1 周には入れない。2 周目で 80% を超えて予備日が残っていたら、この順に手で足す。</p>
     <div class="tbl-wrap" id="t-next"></div>
   </section>
 
@@ -488,14 +488,13 @@ const coveredByMain = s => MAIN.some(q => q.id === s.id || q.id === s.mid);
 const EXTRA = subs.filter(s => !coveredByMain(s))
   .sort((a, b) => examOf(b) - examOf(a) || a.id.localeCompare(b.id))
   .map(s => ({ id: s.id, short: s.name, phase: 4, axes: AXES_BY_MID[s.mid], n: s.n, dom: s.dom, exam: examOf(s) }));
-const queue = [...MAIN, ...EXTRA];
-const REVIEW_PHASE = 5;
+const queue = MAIN; // 1 周は主要分だけ。EXTRA は「次に足すならこの順」の表にだけ使う
+const REVIEW_PHASE = 4;
 const PHASE_INFO = [
   { dom: '2', title: '分野2 弾力性を全問', why: 'サイトでは 20% しかないが本番は 26%。1 問あたりの価値が最も高く、小さな小分類まで含めて全部解く。2-1 の疎結合（SQS・SNS・EventBridge・コンテナ・サーバーレス）と 2-2 の複数 AZ・DR が中心。' },
   { dom: '1', title: '分野1 セキュアの主要 7 小分類', why: '本番で最大の 30%。暗号化と KMS、IAM ポリシー、SCP、WAF・Shield、外部接続の山を先に拾う。' },
   { dom: '4', title: '分野4 コストの 2 小分類', why: '最頻出の 4-2-3（EC2 の購入オプション、Lambda と EC2 と Fargate の使い分け）と 4-1-8 のストレージ階層。この 2 つで分野4 の 4 割。' },
   { dom: '3', title: '分野3 高パフォーマンスの主要 4 小分類', why: 'サイトは本番より 6 ポイント多いので、まずストレージ選択・データ転送・ネットワーク構成・キャッシュの 4 つ。' },
-  { dom: null, title: '追加分', why: '主要分の後ろに、残りの小分類を本番換算の大きい順に並べたもの。1 日の問数と試験日で入る分だけが 1 周に入る。' },
   { dom: null, title: '間違えた問題の 2 周目', why: '1 周で間違えた問題だけを解いた順に解き直す。落とした問題は二択対照表にカードを足す。正答率 80% 以上で受験。' },
 ];
 
@@ -612,7 +611,7 @@ function renderPlan() {
     return head + rows;
   }).join('');
   const bufferRow = buffer > 0
-    ? `<div class="day buffer"><span></span><span class="date"><b>${fmt(bufferFrom)}〜</b></span><span class="task">予備 ${buffer} 日。遅れの吸収と、週末に 1 回の 65 問 130 分の通し練習</span><span class="n"></span><span class="deck"></span></div>`
+    ? `<div class="day buffer"><span></span><span class="date"><b>${fmt(bufferFrom)}〜</b></span><span class="task">予備 ${buffer} 日。遅れの吸収、3 割を超えた分の間違い直し、単語帳と二択対照表の総復習。できれば週末に 1 回、65 問を 130 分で通す</span><span class="n"></span><span class="deck"></span></div>`
     : '';
   const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(exam)}</b>（${DOW[exam.getDay()]}）</span><span class="task">本番</span><span class="n"></span><span class="deck"></span></div>`;
   document.getElementById('plan-table').innerHTML = html + bufferRow + examRow;
@@ -631,7 +630,7 @@ function updateProgress() {
 }
 
 function renderNext() {
-  const rest = queue.filter(q => !schedule.included.includes(q)).slice(0, 10);
+  const rest = [...MAIN.filter(q => !schedule.included.includes(q)), ...EXTRA].slice(0, 10);
   const rows = rest.map(q => `<tr><td><span class="chip" style="--c:${colorOf(q.dom)}"></span>${esc(q.id)}</td><td>${esc(q.short)}</td><td class="n">${q.n}</td><td class="n">${q.exam.toFixed(1)}</td></tr>`).join('');
   document.getElementById('t-next').innerHTML = rest.length
     ? `<table><thead><tr><th>分類</th><th>内容</th><th class="n">問数</th><th class="n">本番換算</th></tr></thead><tbody>${rows}</tbody></table>`
