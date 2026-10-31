@@ -1,7 +1,7 @@
 // キャッシュ名にページ内容のハッシュを含め、更新時に古いキャッシュを捨てる
-const CACHE = 'saa-tangocho-9e4d9a73e082';
-const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png", "./kouseizu.html", "./kouseizu.webmanifest", "./kouseizu-icon-180.png", "./kouseizu-icon-512.png", "./nitaku.html", "./nitaku.webmanifest", "./nitaku-icon-180.png", "./nitaku-icon-512.png"];
-const PAGES = ["/", "/index.html", "/kouseizu.html", "/nitaku.html"];
+const CACHE = 'saa-tangocho-ea6996e196ee';
+const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png", "./kouseizu.html", "./kouseizu.webmanifest", "./kouseizu-icon-180.png", "./kouseizu-icon-512.png", "./nitaku.html", "./nitaku.webmanifest", "./nitaku-icon-180.png", "./nitaku-icon-512.png", "./shutsudai.html"];
+const PAGES = ["/", "/index.html", "/kouseizu.html", "/nitaku.html", "/shutsudai.html"];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

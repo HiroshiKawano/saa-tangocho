@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SAA 出題率と優先順位</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* レイアウト: 1 カラム 900px。横棒グラフは HTML で描き、分野の色を全図で揃える（分野1 青・分野2 橙・分野3 青緑・分野4 黄） */
+:root {
+  --bg: #f9f9f7; --surface: #fcfcfb; --fg: #0b0b0b; --fg2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11, 11, 11, .10);
+  --accent: #1c5cab; --accent-soft: #e4eefb;
+  --d1: #2a78d6; --d2: #eb6834; --d3: #1baf7a; --d4: #eda100;
+  --seq1: #1c5cab; --seq2: #5598e7; --seq3: #86b6ef;
+  --good: #006300;
+  --font-body: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Zen Kaku Gothic New", "Noto Sans JP", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0d0d; --surface: #1a1a19; --fg: #f0efec; --fg2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255, 255, 255, .10);
+    --accent: #6da7ec; --accent-soft: #16304f;
+    --d1: #3987e5; --d2: #d95926; --d3: #199e70; --d4: #c98500;
+    --seq1: #3987e5; --seq2: #6da7ec; --seq3: #9ec5f4;
+    --good: #0ca30c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0d0d; --surface: #1a1a19; --fg: #f0efec; --fg2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255, 255, 255, .10);
+  --accent: #6da7ec; --accent-soft: #16304f;
+  --d1: #3987e5; --d2: #d95926; --d3: #199e70; --d4: #c98500;
+  --seq1: #3987e5; --seq2: #6da7ec; --seq3: #9ec5f4;
+  --good: #0ca30c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.7;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+main { max-width: 900px; margin: 0 auto; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.3; text-wrap: balance; margin: 0; }
+h1 { font-size: 30px; font-weight: 900; }
+h2 { font-size: 21px; font-weight: 700; padding-bottom: 8px; border-bottom: 1px solid var(--grid); }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; max-width: 42em; }
+section { display: grid; gap: 16px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+.lead { color: var(--fg2); }
+a { color: var(--accent); }
+strong { font-weight: 700; }
+kbd, code { font-family: var(--font-body); }
+
+/* 冒頭の数字 */
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+.tile .num { font-family: var(--font-head); font-size: 28px; font-weight: 900; line-height: 1.1; }
+.tile .num small { font-size: 15px; font-weight: 700; margin-left: 2px; }
+.tile .cap { font-size: 12.5px; color: var(--fg2); line-height: 1.45; }
+
+/* 図の共通部品 */
+figure { margin: 0; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; }
+figcaption { font-size: 13px; color: var(--fg2); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+figcaption b { color: var(--fg); font-weight: 700; font-size: 14px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--fg2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.hollow { background: transparent; border: 2px solid currentColor; }
+.chart { display: grid; gap: 7px; }
+.row {
+  display: grid; grid-template-columns: var(--label-w, 250px) 1fr 4.5em; grid-template-areas: "lab track val";
+  align-items: center; gap: 10px; min-width: 0; padding: 1px 0; border-radius: 4px; cursor: default;
+}
+.row:hover { background: var(--accent-soft); }
+.row .lab { grid-area: lab; font-size: 13px; color: var(--fg2); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .lab .id { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; margin-right: 6px; }
+.row .track { grid-area: track; position: relative; height: 14px; min-width: 0; }
+.row .bar { position: absolute; left: 0; top: 0; height: 100%; border-radius: 0 4px 4px 0; background: var(--c); }
+.row .bar.hollow { background: transparent; border: 2px solid var(--c); }
+.row .val { grid-area: val; font-variant-numeric: tabular-nums; font-size: 13px; text-align: right; white-space: nowrap; }
+.row .val small { color: var(--muted); font-size: 11.5px; margin-left: 3px; }
+.row.pair .track { height: 32px; }
+.row.pair .bar { height: 14px; }
+.row.pair .bar.hollow { top: 18px; }
+.row.top { font-weight: 700; }
+.row.top .lab { color: var(--fg); }
+.axis-note { font-size: 12px; color: var(--muted); border-top: 1px solid var(--grid); padding-top: 8px; }
+
+/* 積み上げ 1 本（集中度） */
+.stack { display: flex; height: 26px; gap: 2px; border-radius: 4px; overflow: hidden; }
+.stack div { background: var(--c); min-width: 2px; }
+.stack-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12.5px; color: var(--fg2); }
+.stack-labels b { display: block; color: var(--fg); font-variant-numeric: tabular-nums; }
+.stack-labels i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; background: var(--c); margin-right: 5px; vertical-align: -1px; }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.two figure { --label-w: 190px; }
+#c-domain { --label-w: 310px; }
+#c-sub { --label-w: 340px; }
+
+/* 表 */
+details { border-top: 1px solid var(--grid); padding-top: 8px; }
+summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+.tbl-wrap { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12px; white-space: nowrap; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: 1px; }
+
+/* 優先順位のカード */
+.phases { display: grid; gap: 10px; }
+.phase { display: grid; grid-template-columns: 56px 1fr; gap: 14px; background: var(--surface); border: 1px solid var(--ring); border-left: 5px solid var(--c); border-radius: 8px; padding: 12px 16px; }
+.phase .no { font-family: var(--font-head); font-size: 22px; font-weight: 900; line-height: 1.1; color: var(--c); }
+.phase .no small { display: block; font-size: 11px; font-weight: 700; color: var(--muted); font-family: var(--font-body); }
+.phase .body { display: grid; gap: 4px; min-width: 0; }
+.phase .body p { font-size: 13.5px; color: var(--fg2); max-width: none; }
+
+/* 日程表 */
+.plan { display: grid; gap: 0; border: 1px solid var(--ring); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.plan .ph { background: var(--accent-soft); font-size: 12.5px; font-weight: 700; padding: 6px 14px; color: var(--fg); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.plan .ph span { font-weight: 500; color: var(--fg2); }
+.day { display: grid; grid-template-columns: 28px 64px 1fr 4em 11em; gap: 10px; align-items: start; padding: 7px 14px; border-top: 1px solid var(--grid); font-size: 13.5px; }
+.day:has(input:checked) { color: var(--muted); }
+.day:has(input:checked) .task { text-decoration: line-through; }
+.day input { width: 16px; height: 16px; margin: 4px 0 0; accent-color: var(--accent); }
+.day .date { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.day .date b { font-weight: 700; }
+.day .date .hol { color: var(--d2); font-size: 11px; margin-left: 2px; }
+.day .task { min-width: 0; }
+.day .task .cat { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: 1px; }
+.day .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.day .deck { color: var(--fg2); font-size: 12.5px; }
+.day.exam { background: var(--accent-soft); font-weight: 700; }
+.plan-foot { font-size: 12.5px; color: var(--fg2); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.plan-foot button { font: inherit; font-size: 12px; color: var(--accent); background: none; border: 1px solid var(--ring); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.plan-foot button:focus-visible, .day input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ルール */
+.rules { display: grid; gap: 10px; counter-reset: r; }
+.rule { display: grid; grid-template-columns: 30px 1fr; gap: 10px; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 12px 14px; }
+.rule::before { counter-increment: r; content: counter(r); font-family: var(--font-head); font-weight: 900; font-size: 20px; color: var(--accent); line-height: 1.2; }
+.rule b { display: block; }
+.rule p { font-size: 13.5px; color: var(--fg2); max-width: none; }
+
+/* ツールチップ */
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--fg); color: var(--bg); font-size: 12.5px; line-height: 1.5; padding: 6px 10px; border-radius: 6px; max-width: 280px; box-shadow: 0 2px 8px rgba(0, 0, 0, .25); }
+.tip b { display: block; font-weight: 700; }
+
+@media (max-width: 720px) {
+  h1 { font-size: 24px; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .two { grid-template-columns: 1fr; }
+  .row, .two figure .row { grid-template-columns: 1fr 4.5em; grid-template-areas: "lab lab" "track val"; gap: 2px 10px; }
+  .row .lab { white-space: normal; }
+  .phase { grid-template-columns: 44px 1fr; }
+  .day { grid-template-columns: 24px 60px 1fr 3.5em; }
+  .day .deck { grid-column: 3 / span 2; margin-top: -2px; }
+}
+@media (prefers-reduced-motion: no-preference) { .row .bar { transition: width .4s ease; } }
+.apps { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; border-top: 1px solid var(--grid); padding-top: 18px; }
+</style>
+</head>
+<body>
+
+<main>
+  <header style="display:grid;gap:14px">
+    <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
+    <h1>SAA 出題率と優先順位</h1>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、再受験までの 1 か月で解く順番を決めた。</p>
+    <div class="tiles">
+      <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
+      <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。先に全問やる</div></div>
+      <div class="tile"><div class="num">60<small>%</small></div><div class="cap">14 問以上ある上位 22 小分類で全体の 6 割</div></div>
+      <div class="tile"><div class="num">+7<small>問</small></div><div class="cap">579 → 720 に必要な上積みの目安（採点対象 50 問中）</div></div>
+    </div>
+  </header>
+
+  <section id="domain">
+    <h2>大分類：サイトの比率と本番の配点</h2>
+    <p>サイトは分野3 が本番より 6 ポイント多く、分野2 が 6 ポイント少ない。サイトの出題率をそのまま優先順位にすると、本番で 4 分の 1 を占める分野2 が手薄になる。</p>
+    <figure>
+      <figcaption><b>大分類ごとの比率</b><span class="legend"><span><i class="sw" style="background:var(--fg2)"></i>このサイト</span><span style="color:var(--fg2)"><i class="sw hollow"></i>本番の配点</span></span></figcaption>
+      <div class="chart" id="c-domain"></div>
+      <div class="axis-note">横軸は全体に対する比率。本番は 65 問出題・50 問採点で、配点は AWS 公式の試験ガイドの値。</div>
+    </figure>
+  </section>
+
+  <section id="mid">
+    <h2>中分類：サイトの問数と本番換算</h2>
+    <p>左はサイトの問数順。右はそれを本番の配点で換算した「本番 65 問のうち何問出るか」の目安で、サイト内の分布がそのまま本番にも当てはまると仮定して計算した。分野2 の 2-1 と 2-2 は右で順位が上がる。</p>
+    <div class="two">
+      <figure>
+        <figcaption><b>サイトの問数</b><span>773 問中</span></figcaption>
+        <div class="chart" id="c-mid-site"></div>
+      </figure>
+      <figure>
+        <figcaption><b>本番換算</b><span>65 問中の目安</span></figcaption>
+        <div class="chart" id="c-mid-exam"></div>
+      </figure>
+    </div>
+    <p>1 問あたりの重みで見ると、分野2 の 1 問は分野3 の 1 問の約 1.7 倍、分野1 の約 1.4 倍の価値がある。分野2 の 152 問は飛ばさず、間違い直しも分野2 から始める。</p>
+  </section>
+
+  <section id="sub">
+    <h2>小分類：上位 22 と集中度</h2>
+    <p>14 問以上ある小分類が 22 個あり、これで全体の 6 割。3 問以下の小分類は 21 個あるが、合わせても 5% にしかならない。</p>
+    <figure>
+      <figcaption><b>集中度</b><span>小分類 75 個を問数で 3 段階に分けた</span></figcaption>
+      <div class="stack" id="c-stack"></div>
+      <div class="stack-labels" id="c-stack-labels"></div>
+    </figure>
+    <figure>
+      <figcaption><b>小分類 上位 22</b><span>右の数字は累計比率</span></figcaption>
+      <div class="chart" id="c-sub"></div>
+      <div class="axis-note">4-2-3 が単独で最多。中分類 4-2 は 43 問しかないが、そのうち 36 問がここに集中している。</div>
+    </figure>
+    <details>
+      <summary>小分類 75 個をすべて表で見る</summary>
+      <div class="tbl-wrap" id="t-sub"></div>
+    </details>
+  </section>
+
+  <section id="priority">
+    <h2>優先順位</h2>
+    <p>順番は「サイトの出題率 × 本番の配点」で決めた。先に解く分野ほど間違い直しの回数が増えるので、本番で重く、サイトで少ない分野2 を最初に置く。</p>
+    <div class="phases" id="phases"></div>
+  </section>
+
+  <section id="plan">
+    <h2>11 月の日程</h2>
+    <p>1 日 35 問前後、解く時間と見直しで 2 時間強。先に全 773 問を 1 周し、最後の 1 週間は間違えた問題の 2 周目と、65 問 130 分の通し練習に使う。受験日は今のうちに 11/29〜12/6 で予約する。</p>
+    <div class="plan" id="plan-table"></div>
+    <div class="plan-foot"><span id="plan-progress"></span><button type="button" id="plan-reset">チェックを全部外す</button></div>
+  </section>
+
+  <section id="rules">
+    <h2>解き方のルール</h2>
+    <p>前回は暗記も過去問の量も足りていたのに 4 分野すべてで届かなかった。知識ではなく「2 つ残った後の決め方」を直す。</p>
+    <div class="rules">
+      <div class="rule"><div><b>1 問 2 分。2 つ残ったら問題文の最後の決まり文句に戻る</b><p>「最もコスト効率よく」「運用負荷を最小に」「最も可用性が高い」などの語が、どちらを選ぶかを決める。本文の技術的な正しさでは決めない。</p></div></div>
+      <div class="rule"><div><b>間違えた問題は 3 つをメモして二択対照表に追加する</b><p>制約の言葉、選ぶ方、もう一方を落とす理由。この 3 つが書けない問題は、次も同じ理由で落とす。</p></div></div>
+      <div class="rule"><div><b>正解でも「落とした理由」が言えなければ間違い扱いにする</b><p>消去法で当たった問題は点にならない。サイトの学習済みとは別に、自分の間違いリストに入れる。</p></div></div>
+      <div class="rule"><div><b>受験の条件は 2 周目 80% 以上、通し練習 2 回とも 47 問以上</b><p>どちらかを下回ったら、受験日を 12/6 側にずらして間違い直しをもう 1 周する。</p></div></div>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">スコアの換算は AWS 非公開のため、579 点を正答率 58% 前後、720 点を 72% 前後とみなした目安。</p>
+  </section>
+  <nav class="apps"><a href="./index.html">鉄板パターンの単語帳 →</a><a href="./kouseizu.html">構成図の単語帳 →</a><a href="./nitaku.html">二択対照表 →</a></nav>
+</main>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+'use strict';
+// ---- データ（サイトの分類と問数をそのまま転記） ----
+const DOMAINS = [
+  { id: '1', name: 'セキュアなアーキテクチャの設計', weight: 0.30, c: 'var(--d1)' },
+  { id: '2', name: '弾力性に優れたアーキテクチャの設計', weight: 0.26, c: 'var(--d2)' },
+  { id: '3', name: '高パフォーマンスなアーキテクチャの設計', weight: 0.24, c: 'var(--d3)' },
+  { id: '4', name: 'コスト最適化されたアーキテクチャの設計', weight: 0.20, c: 'var(--d4)' },
+];
+const MIDS = [
+  ['1-1', 'AWS リソースへの安全なアクセスを設計する', '安全なアクセス'],
+  ['1-2', '安全なワークロードとアプリケーションを設計する', '安全なワークロード'],
+  ['1-3', '適切なデータセキュリティ制御を決定する', 'データセキュリティ制御'],
+  ['2-1', 'スケーラブルで疎結合なアーキテクチャを設計する', 'スケーラブルで疎結合'],
+  ['2-2', '高可用性と耐障害性を備えたアーキテクチャを設計する', '高可用性と耐障害性'],
+  ['3-1', '高性能でスケーラブルなストレージソリューションを決定する', '性能：ストレージ'],
+  ['3-2', '高性能で弾力的なコンピューティングソリューションを設計する', '性能：コンピューティング'],
+  ['3-3', '高性能なデータベースソリューションを決定する', '性能：データベース'],
+  ['3-4', '高性能でスケーラブルなネットワークアーキテクチャを決定する', '性能：ネットワーク'],
+  ['3-5', '高性能なデータ取り込み・変換ソリューションを決定する', 'データ取り込み・変換'],
+  ['4-1', 'コスト最適化されたストレージソリューションを設計する', 'コスト：ストレージ'],
+  ['4-2', 'コスト最適化されたコンピューティングソリューションを設計する', 'コスト：コンピューティング'],
+  ['4-3', 'コスト最適化されたデータベースソリューションを設計する', 'コスト：データベース'],
+  ['4-4', 'コスト最適化されたネットワークアーキテクチャを設計する', 'コスト：ネットワーク'],
+];
+const SUBS = [
+  ['1-1-1', 'IAM ユーザーとルートユーザーをセキュリティのベストプラクティスで保護する', 3],
+  ['1-1-2', 'IAM アイデンティティとポリシーで柔軟な認可を設計する', 30],
+  ['1-1-3', 'ロールベースおよびクロスアカウントアクセスを設計する', 6],
+  ['1-1-4', 'Control Tower と SCP でマルチアカウントセキュリティを設計する', 21],
+  ['1-1-5', '適切なリソースベースポリシーを選択する', 13],
+  ['1-1-6', 'ディレクトリサービスと IAM ロールを連携する', 10],
+  ['1-2-1', '安全な VPC アーキテクチャとトラフィック制御を設計する', 11],
+  ['1-2-2', 'パブリック・プライベートネットワークの分離を設計する', 6],
+  ['1-2-3', 'アプリケーションを保護する AWS サービスを統合する', 27],
+  ['1-2-4', 'AWS との外部接続を安全に設計する', 20],
+  ['1-3-1', 'コンプライアンス要件に AWS 技術を対応付ける', 16],
+  ['1-3-2', '適切な鍵管理で保存データを暗号化する', 29],
+  ['1-3-3', 'TLS と証明書で転送中データを暗号化する', 7],
+  ['1-3-4', '暗号化キーのアクセスポリシーを実装する', 10],
+  ['1-3-5', 'データのバックアップとレプリケーション制御を実装する', 12],
+  ['1-3-6', 'データアクセス・ライフサイクル・保護ポリシーを実装する', 20],
+  ['1-3-7', '暗号化キーのローテーションと証明書更新を行う', 9],
+  ['2-1-1', 'イベント駆動・マイクロサービス・多層アーキテクチャを設計する', 15],
+  ['2-1-2', 'アーキテクチャ構成要素のスケーリング戦略を選択する', 12],
+  ['2-1-3', '疎結合を実現する AWS サービスを選択する', 17],
+  ['2-1-4', 'コンテナが適切な場面を判断する', 14],
+  ['2-1-5', 'サーバーレスパターンが適切な場面を判断する', 9],
+  ['2-1-6', '要件に適したコンピューティング・ストレージ・ネットワーク・DB 技術を選ぶ', 8],
+  ['2-1-7', 'ワークロードに適した専用 AWS サービスを使用する', 11],
+  ['2-2-1', 'インフラストラクチャの整合性を自動化する', 6],
+  ['2-2-2', 'リージョンと AZ をまたぐ高可用性を設計する', 23],
+  ['2-2-3', 'ビジネス要件から可用性指標を選択する', 1],
+  ['2-2-4', '単一障害点を排除・軽減する', 4],
+  ['2-2-5', 'データの耐久性と可用性を確保する', 8],
+  ['2-2-6', 'RPO・RTO に適した災害復旧戦略を選択する', 12],
+  ['2-2-7', 'AWS サービスでレガシーアプリケーションの信頼性を改善する', 12],
+  ['3-1-1', '性能要件に適したストレージサービスと設定を選択する', 31],
+  ['3-1-2', '将来需要に合わせて拡張できるストレージを選択する', 2],
+  ['3-2-1', 'ワークロードを分離して個別にスケールできるようにする', 1],
+  ['3-2-2', 'スケーリング動作のメトリクスと条件を選択する', 7],
+  ['3-2-3', 'ワークロード要件に適したコンピューティング機能を選択する', 8],
+  ['3-2-4', 'ワークロードに合わせてコンピューティングを適正化する', 2],
+  ['3-3-1', 'ワークロード要件に合わせてリードレプリカを構成する', 9],
+  ['3-3-2', '高性能なデータベースアーキテクチャを設計する', 14],
+  ['3-3-3', '適切なデータベースエンジンを選択する', 3],
+  ['3-3-4', '適切なデータベース種別とサービスを選択する', 4],
+  ['3-3-5', '性能要件に合わせてキャッシュを統合する', 22],
+  ['3-4-1', 'グローバル・ハイブリッド・多層システムのネットワーク構成を設計する', 25],
+  ['3-4-2', '拡張可能なネットワーク構成を設計する', 13],
+  ['3-4-3', 'ネットワーク要件に合わせてリソースを配置する', 10],
+  ['3-4-4', '適切な負荷分散戦略を選択する', 14],
+  ['3-5-1', 'データレイクを構築して保護する', 5],
+  ['3-5-2', 'データストリーミングアーキテクチャを設計する', 15],
+  ['3-5-3', 'データ転送ソリューションを設計する', 30],
+  ['3-5-4', 'データ可視化戦略を実装する', 1],
+  ['3-5-5', 'データ処理に適したコンピューティングを選択する', 15],
+  ['3-5-7', 'ストレージ形式間でデータを変換する', 1],
+  ['4-1-1', '費用対効果の高いストレージアクセスとアップロードを設計する', 3],
+  ['4-1-2', 'ワークロードに合わせてストレージを適正化する', 2],
+  ['4-1-3', 'ストレージへの最も低コストなデータ転送方法を選択する', 2],
+  ['4-1-5', 'S3 オブジェクトのライフサイクルを管理する', 10],
+  ['4-1-6', 'バックアップとアーカイブのソリューションを選択する', 6],
+  ['4-1-7', 'ストレージ移行サービスを選択する', 1],
+  ['4-1-8', '費用対効果の高いストレージ階層を選択する', 18],
+  ['4-1-9', 'ストレージのデータライフサイクルポリシーを選択する', 2],
+  ['4-1-10', '最も費用対効果の高いストレージサービスを選択する', 9],
+  ['4-2-2', '弾力的なワークロードのスケーリング戦略を選択する', 4],
+  ['4-2-3', '費用対効果の高い AWS コンピューティングを選択する', 36],
+  ['4-2-6', '適切なコンピューティングインスタンスサイズを選択する', 3],
+  ['4-3-1', '費用対効果の高い DB バックアップと保持ポリシーを設計する', 3],
+  ['4-3-3', '費用対効果の高い AWS データベースサービスを選択する', 14],
+  ['4-3-4', '費用対効果の高いデータベース種別を選択する', 1],
+  ['4-3-5', 'データベーススキーマとデータを低コストで移行する', 8],
+  ['4-4-1', '費用対効果の高い NAT ゲートウェイ配置を選択する', 3],
+  ['4-4-2', '費用対効果の高いネットワーク接続を選択する', 5],
+  ['4-4-3', 'データ転送コストを抑えるルーティングを設計する', 1],
+  ['4-4-4', 'CDN とエッジキャッシュが必要な場面を判断する', 5],
+  ['4-4-5', 'ネットワークコスト最適化の観点でワークロードを見直す', 1],
+  ['4-4-6', '適切なスロットリング戦略を選択する', 1],
+  ['4-4-7', '費用対効果の高いネットワーク帯域幅を選択する', 1],
+];
+const EXAM_Q = 65;
+
+// ---- 集計（元データは変更せず、新しい配列を作る） ----
+const subs = SUBS.map(([id, name, n]) => ({ id, name, n, mid: id.split('-').slice(0, 2).join('-'), dom: id[0] }));
+const TOTAL = subs.reduce((s, x) => s + x.n, 0);
+const domById = Object.fromEntries(DOMAINS.map(d => [d.id, d]));
+const domTotal = Object.fromEntries(DOMAINS.map(d => [d.id, subs.filter(s => s.dom === d.id).reduce((s, x) => s + x.n, 0)]));
+const examOf = s => domById[s.dom].weight * EXAM_Q * s.n / domTotal[s.dom]; // 本番換算
+const mids = MIDS.map(([id, name, short]) => {
+  const n = subs.filter(s => s.mid === id).reduce((s, x) => s + x.n, 0);
+  return { id, name, short, n, dom: id[0], exam: examOf({ dom: id[0], n }) };
+});
+const doms = DOMAINS.map(d => ({ ...d, n: domTotal[d.id], share: domTotal[d.id] / TOTAL }));
+const pct = x => (x * 100).toFixed(1) + '%';
+const pct0 = x => Math.round(x * 100) + '%';
+const colorOf = dom => domById[dom].c;
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+// ---- 横棒 1 行 ----
+function barRow({ id, name, dom, value, max, valText, extra = '', top = false, tip }) {
+  const w = (value / max * 100).toFixed(1);
+  return `<div class="row${top ? ' top' : ''}" style="--c:${colorOf(dom)}" data-tip="${esc(tip)}">
+    <div class="lab"><span class="id">${esc(id)}</span>${esc(name)}</div>
+    <div class="track"><div class="bar" style="width:${w}%"></div></div>
+    <div class="val">${valText}${extra}</div></div>`;
+}
+
+// 大分類：サイト比率（塗り）と本番配点（枠）
+function renderDomain() {
+  const max = 0.35;
+  document.getElementById('c-domain').innerHTML = doms.map(d => {
+    const diff = Math.round((d.share - d.weight) * 100);
+    const sign = diff > 0 ? '+' : '';
+    return `<div class="row pair" style="--c:${d.c}" data-tip="${esc(`分野${d.id} ${d.name}\nサイト ${d.n} 問（${pct(d.share)}）／本番 ${pct0(d.weight)}`)}">
+      <div class="lab"><span class="id">分野${d.id}</span>${esc(d.name)}</div>
+      <div class="track"><div class="bar" style="width:${(d.share / max * 100).toFixed(1)}%"></div><div class="bar hollow" style="width:${(d.weight / max * 100).toFixed(1)}%"></div></div>
+      <div class="val">${pct(d.share)}<br><small>${pct0(d.weight)}（${sign}${diff}pt）</small></div></div>`;
+  }).join('');
+}
+
+// 中分類：サイト問数順と本番換算順
+function renderMid() {
+  const bySite = [...mids].sort((a, b) => b.n - a.n);
+  const byExam = [...mids].sort((a, b) => b.exam - a.exam);
+  const short = m => m.short;
+  document.getElementById('c-mid-site').innerHTML = bySite.map(m => barRow({
+    id: m.id, name: short(m), dom: m.dom, value: m.n, max: bySite[0].n,
+    valText: `${m.n}<small>${pct(m.n / TOTAL)}</small>`,
+    tip: `${m.id} ${m.name}\n${m.n} 問（${pct(m.n / TOTAL)}）、本番換算 ${m.exam.toFixed(1)} 問`,
+  })).join('');
+  document.getElementById('c-mid-exam').innerHTML = byExam.map(m => barRow({
+    id: m.id, name: short(m), dom: m.dom, value: m.exam, max: byExam[0].exam,
+    valText: `${m.exam.toFixed(1)}<small>問</small>`,
+    tip: `${m.id} ${m.name}\n本番換算 ${m.exam.toFixed(1)} 問（サイト ${m.n} 問）`,
+  })).join('');
+}
+
+// 小分類：上位 22 と集中度
+function renderSub() {
+  const sorted = [...subs].sort((a, b) => b.n - a.n || a.id.localeCompare(b.id));
+  const top = sorted.filter(s => s.n >= 14);
+  let cum = 0;
+  document.getElementById('c-sub').innerHTML = top.map((s, i) => {
+    cum += s.n;
+    return barRow({
+      id: s.id, name: s.name, dom: s.dom, value: s.n, max: top[0].n, top: i === 0,
+      valText: `${s.n}<small>累計 ${pct0(cum / TOTAL)}</small>`,
+      tip: `${s.id} ${s.name}\n${s.n} 問（${pct(s.n / TOTAL)}）、本番換算 ${examOf(s).toFixed(1)} 問`,
+    });
+  }).join('');
+
+  const tiers = [
+    { label: '14 問以上', c: 'var(--seq1)', items: subs.filter(s => s.n >= 14) },
+    { label: '4〜13 問', c: 'var(--seq2)', items: subs.filter(s => s.n >= 4 && s.n <= 13) },
+    { label: '3 問以下', c: 'var(--seq3)', items: subs.filter(s => s.n <= 3) },
+  ].map(t => ({ ...t, n: t.items.reduce((s, x) => s + x.n, 0) }));
+  document.getElementById('c-stack').innerHTML = tiers.map(t =>
+    `<div style="--c:${t.c};flex:${t.n}" data-tip="${esc(`${t.label}：小分類 ${t.items.length} 個、${t.n} 問（${pct(t.n / TOTAL)}）`)}"></div>`).join('');
+  document.getElementById('c-stack-labels').innerHTML = tiers.map(t =>
+    `<div><i style="--c:${t.c}"></i>${t.label}<b>${t.items.length} 分類 · ${t.n} 問 · ${pct0(t.n / TOTAL)}</b></div>`).join('');
+
+  const rows = sorted.map((s, i) => `<tr><td class="n">${i + 1}</td><td><span class="chip" style="--c:${colorOf(s.dom)}"></span>${esc(s.id)}</td><td>${esc(s.name)}</td><td class="n">${s.n}</td><td class="n">${pct(s.n / TOTAL)}</td><td class="n">${examOf(s).toFixed(1)}</td></tr>`).join('');
+  document.getElementById('t-sub').innerHTML = `<table><thead><tr><th class="n">順</th><th>小分類</th><th>内容</th><th class="n">問数</th><th class="n">比率</th><th class="n">本番換算</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// 優先順位のフェーズ
+const PHASES = [
+  { dom: '2', title: '分野2 弾力性を全問', days: '11/1〜11/4', n: 152, why: 'サイトでは 20% しかないが本番は 26%。1 問あたりの価値が最も高く、間違い直しの回数も最も多く取れる。2-1 の疎結合（SQS・SNS・EventBridge・コンテナ・サーバーレス）と 2-2 の複数 AZ・DR が中心。' },
+  { dom: '1', title: '分野1 セキュアを全問', days: '11/5〜11/11', n: 250, why: '本番で最大の 30%。1-3 の暗号化と KMS、1-1 の IAM ポリシーと SCP、1-2 の WAF・Shield・外部接続の 4 つの山がある。' },
+  { dom: '4', title: '分野4 コストを全問', days: '11/12〜11/15', n: 139, why: '最頻出の小分類 4-2-3（EC2 の購入オプション、Lambda と EC2 と Fargate の使い分け）と 4-1-8 のストレージ階層がここ。問数が少ないわりに本番の配点は 20%。' },
+  { dom: '3', title: '分野3 高パフォーマンスを全問', days: '11/16〜11/23', n: 232, why: 'サイトは本番より 6 ポイント多い。3-5 のデータ転送、3-4 のネットワーク、3-3 のキャッシュ、3-1-1 のストレージ選択を優先し、3 問以下の 6 小分類は最後に回す。' },
+  { dom: null, title: '2 周目と通し練習', days: '11/23〜11/29', n: null, why: '間違えた問題だけを分野2 → 1 → 3・4 の順で解き直し、65 問 130 分の通し練習を 2 回。落とした問題は二択対照表にカードを足す。' },
+];
+function renderPhases() {
+  document.getElementById('phases').innerHTML = PHASES.map((p, i) => `<div class="phase" style="--c:${p.dom ? colorOf(p.dom) : 'var(--accent)'}">
+    <div class="no">${i + 1}<small>${p.days}</small></div>
+    <div class="body"><h3>${esc(p.title)}${p.n ? `<span style="font-weight:500;color:var(--muted);font-size:13px;margin-left:8px">${p.n} 問</span>` : ''}</h3><p>${esc(p.why)}</p></div></div>`).join('');
+}
+
+// 日程（日付, 曜日, 祝日, 分野, やること, 問数, その夜に回す二択対照表の軸）
+const PLAN = [
+  { phase: '① 分野2 を全問', days: [
+    ['11/1', '日', '', '2', '2-1 スケーラブルで疎結合 ①', 43, '8 メッセージング'],
+    ['11/2', '月', '', '2', '2-1 スケーラブルで疎結合 ②', 43, '2 運用負荷'],
+    ['11/3', '火', '祝', '2', '2-2 高可用性と耐障害性 ①', 33, '3 可用性'],
+    ['11/4', '水', '', '2', '2-2 高可用性と耐障害性 ②', 33, '7 DR'],
+  ] },
+  { phase: '② 分野1 を全問', days: [
+    ['11/5', '木', '', '1', '1-3 データセキュリティ制御 ①', 35, '6 セキュリティ'],
+    ['11/6', '金', '', '1', '1-3 データセキュリティ制御 ②', 35, '11 監査・監視'],
+    ['11/7', '土', '', '1', '1-3 データセキュリティ制御 ③', 33, '6 セキュリティ'],
+    ['11/8', '日', '', '1', '1-1 安全なアクセス ①', 42, '6 セキュリティ'],
+    ['11/9', '月', '', '1', '1-1 安全なアクセス ②', 41, '11 監査・監視'],
+    ['11/10', '火', '', '1', '1-2 安全なワークロード ①', 32, '6 セキュリティ'],
+    ['11/11', '水', '', '1', '1-2 安全なワークロード ②', 32, '4 性能'],
+  ] },
+  { phase: '③ 分野4 を全問', days: [
+    ['11/12', '木', '', '4', '4-2 コスト最適化コンピューティング', 43, '1 コスト'],
+    ['11/13', '金', '', '4', '4-1 コスト最適化ストレージ ①', 27, '9 ストレージ'],
+    ['11/14', '土', '', '4', '4-1 コスト最適化ストレージ ②', 26, '1 コスト'],
+    ['11/15', '日', '', '4', '4-3 データベース ＋ 4-4 ネットワーク', 43, '10 DB・分析'],
+  ] },
+  { phase: '④ 分野3 を全問', days: [
+    ['11/16', '月', '', '3', '3-5 データ取り込み・変換 ①', 34, '10 DB・分析'],
+    ['11/17', '火', '', '3', '3-5 データ取り込み・変換 ②', 33, '8 メッセージング'],
+    ['11/18', '水', '', '3', '3-4 ネットワーク ①', 31, '4 性能'],
+    ['11/19', '木', '', '3', '3-4 ネットワーク ②', 31, '5 変更なし・移行'],
+    ['11/20', '金', '', '3', '3-3 データベース ①', 26, '10 DB・分析'],
+    ['11/21', '土', '', '3', '3-3 データベース ②', 26, '4 性能'],
+    ['11/22', '日', '', '3', '3-1 ストレージ', 33, '9 ストレージ'],
+    ['11/23', '月', '祝', '3', '3-2 コンピューティング ＋ 分野2 の間違い直し', 18, '全軸を通しで'],
+  ] },
+  { phase: '⑤ 2 周目と通し練習', days: [
+    ['11/24', '火', '', null, '分野1 の間違い直し', null, '全軸を通しで'],
+    ['11/25', '水', '', null, '分野3・4 の間違い直し', null, '全軸を通しで'],
+    ['11/26', '木', '', null, '通し練習 ①　65 問を 130 分で', 65, ''],
+    ['11/27', '金', '', null, '通し練習 ① の見直し。落とした問題を二択対照表に追加', null, '落とした印だけ'],
+    ['11/28', '土', '', null, '通し練習 ②　65 問を 130 分で', 65, ''],
+    ['11/29', '日', '', null, '通し練習 ② の見直し。鉄板パターンと構成図の単語帳で総復習', null, '落とした印だけ'],
+  ] },
+];
+const KEY_DONE = 'saa-priority-done-v1';
+const loadDone = () => { try { return new Set(JSON.parse(localStorage.getItem(KEY_DONE) || '[]')); } catch (e) { return new Set(); } };
+const saveDone = done => { try { localStorage.setItem(KEY_DONE, JSON.stringify([...done])); } catch (e) { /* 保存できない環境では無視 */ } };
+let done = loadDone();
+const allDays = PLAN.flatMap(p => p.days);
+
+function renderPlan() {
+  const html = PLAN.map(p => {
+    const sum = p.days.reduce((s, d) => s + (d[5] || 0), 0);
+    const head = `<div class="ph">${esc(p.phase)}<span>${p.days[0][0]}〜${p.days[p.days.length - 1][0]} · ${sum} 問</span></div>`;
+    const rows = p.days.map(([date, dow, hol, dom, task, n, deck]) => {
+      const id = 'd' + date.replace('/', '-');
+      return `<label class="day"><input type="checkbox" id="${id}" data-date="${date}" ${done.has(date) ? 'checked' : ''}>
+        <span class="date"><b>${date}</b>（${dow}）${hol ? `<span class="hol">${hol}</span>` : ''}</span>
+        <span class="task">${dom ? `<i class="cat" style="--c:${colorOf(dom)}"></i>` : ''}${esc(task)}</span>
+        <span class="n">${n ? n + ' 問' : ''}</span>
+        <span class="deck">${deck ? '二択 ' + esc(deck) : ''}</span></label>`;
+    }).join('');
+    return head + rows;
+  }).join('');
+  const exam = `<div class="day exam"><span></span><span class="date"><b>11/30</b>（月）</span><span class="task">本番。予約が取れなければ 12/5（土）か 12/6（日）</span><span class="n"></span><span class="deck"></span></div>`;
+  document.getElementById('plan-table').innerHTML = html + exam;
+  updateProgress();
+}
+function updateProgress() {
+  const n = allDays.filter(d => done.has(d[0])).length;
+  const q = allDays.filter(d => done.has(d[0])).reduce((s, d) => s + (d[5] || 0), 0);
+  document.getElementById('plan-progress').textContent = `終わった日 ${n} / ${allDays.length}　解いた問数 ${q} 問。チェックはこのブラウザだけに保存される。`;
+}
+document.getElementById('plan-table').addEventListener('change', e => {
+  const date = e.target.dataset?.date;
+  if (!date) return;
+  done = e.target.checked ? new Set([...done, date]) : new Set([...done].filter(d => d !== date));
+  saveDone(done);
+  updateProgress();
+});
+document.getElementById('plan-reset').addEventListener('click', () => {
+  done = new Set();
+  saveDone(done);
+  renderPlan();
+});
+
+// ツールチップ（棒と積み上げに共通）
+const tip = document.getElementById('tip');
+function showTip(target, x, y) {
+  const text = target.dataset.tip;
+  if (!text) return;
+  const [head, ...rest] = text.split('\n');
+  tip.innerHTML = `<b>${esc(head)}</b>${esc(rest.join(' '))}`;
+  tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  const left = Math.min(x + 14, window.innerWidth - r.width - 8);
+  const top = y + 18 + r.height > window.innerHeight ? y - r.height - 10 : y + 18;
+  tip.style.left = Math.max(8, left) + 'px';
+  tip.style.top = top + 'px';
+}
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t) showTip(t, e.clientX, e.clientY); else tip.hidden = true;
+});
+document.addEventListener('touchstart', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t) { const p = e.touches[0]; showTip(t, p.clientX, p.clientY); } else tip.hidden = true;
+}, { passive: true });
+
+renderDomain();
+renderMid();
+renderSub();
+renderPhases();
+renderPlan();
+</script>
+</body>
+</html>

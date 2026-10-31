@@ -502,7 +502,7 @@
       return `
         <header class="head">
           <h1>SAA 二択対照表</h1>
-          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 10/31 20:58 版</span>
+          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 10/31 22:27 版</span>
         </header>
         <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。候補と制約が出るので、どちらを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -512,7 +512,7 @@
           <label class="toggle" for="shuffle"><input type="checkbox" id="shuffle" ${state.shuffle ? 'checked' : ''}>シャッフル</label>
         </div>
         <div class="decks">${DECKS.map(renderDeckRow).join('')}</div>
-        ${clearBtn}<p class="foot"><a class="xlink" href="./index.html">鉄板パターンの単語帳へ →</a><a class="xlink" href="./kouseizu.html">構成図の単語帳へ →</a></p>`;
+        ${clearBtn}<p class="foot"><a class="xlink" href="./index.html">鉄板パターンの単語帳へ →</a><a class="xlink" href="./kouseizu.html">構成図の単語帳へ →</a><a class="xlink" href="./shutsudai.html">出題率と優先順位 →</a></p>`;
     }
     function renderDeckRow(deck) {
       const m = missedIn(flatCards(deck));
