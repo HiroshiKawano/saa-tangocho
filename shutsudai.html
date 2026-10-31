@@ -168,7 +168,10 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .pace { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
 .pace input { width: 5em; font: inherit; padding: 4px 6px; border: 1px solid var(--axis); border-radius: 4px; background: var(--surface); color: var(--fg); }
 .pace input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.pace span { color: var(--fg2); }
+.pace input[type="date"] { width: auto; }
+.pace label { color: var(--fg2); }
+.pace-summary { font-size: 13.5px; color: var(--fg2); max-width: none; }
+.day.buffer { color: var(--fg2); }
 .then { color: var(--muted); margin: 0 6px; }
 .day .task small { color: var(--muted); font-size: 12px; }
 .phase-n { font-weight: 500; color: var(--muted); font-size: 13px; margin-left: 8px; }
@@ -181,7 +184,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   <header style="display:grid;gap:14px">
     <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
     <h1>SAA 出題率と優先順位</h1>
-    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日 20 問のペースで 1 か月に解く分と順番を決めた。</p>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日の問数と試験日に収まる分だけを優先順に 1 周する計画にした。</p>
     <div class="tiles">
       <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
       <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。全問やる唯一の分野</div></div>
@@ -237,18 +240,19 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="priority">
     <h2>優先順位</h2>
-    <p>1 日 20 問だと 1 か月で 600 問が上限なので、全 773 問は解かない。本番換算が大きい小分類に絞り、1 問の価値が高い分野2 だけは全問。順番は「サイトの出題率 × 本番の配点」で、先に解く分野ほど間違い直しの回数が増えるため、本番で重くサイトで少ない分野2 を最初に置く。残りの小分類は 2 周目の正答率が 80% を超えてから足す。</p>
+    <p>1 日の問数と試験日で解ける数が決まるので、全 773 問を解く前提にしない。本番換算が大きい順に並べ、2 周目の分を残して入るところまでを 1 周する。1 問の価値が高い分野2 だけは全問。順番は「サイトの出題率 × 本番の配点」で、先に解く分野ほど間違い直しの回数が増えるため、本番で重くサイトで少ない分野2 を最初に置く。主要分の後は本番換算の大きい小分類から足す。</p>
     <div class="phases" id="phases"></div>
   </section>
 
   <section id="plan">
     <h2>日程</h2>
-    <p>1 日分は 20 問を 40 分で解き、見直しに 30〜40 分。1 周で解く問題を優先順に並べ、1 日の問数で区切った。間違いは 3 割と見込んで、1 周の後に 2 周目として並べてある。試験は 2 周目が終わった次の土曜。1 日の問数を変えると表が組み直される。</p>
-    <div class="pace"><label for="daily">1 日の問数</label><input type="number" id="daily" min="5" max="60" step="5" value="20"><span id="plan-summary"></span></div>
+    <p>1 問 2 分で解き、同じくらいの時間で見直す。1 日 10 問なら合わせて 40 分ほど。優先順に並べた問題を 1 日の問数で区切り、間違いは 3 割と見込んで 2 周目を試験日の直前に置いた。余った日は予備日。1 日の問数か試験日を変えると表が組み直される。</p>
+    <div class="pace"><label for="daily">1 日の問数</label><input type="number" id="daily" min="5" max="60" step="5" value="10"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-23"></div>
+    <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
     <div class="plan-foot"><span id="plan-progress"></span><button type="button" id="plan-reset">チェックを全部外す</button></div>
     <h3>次に足すならこの順</h3>
-    <p>2 周目で 80% を超えて日が残っていたら、本番換算の大きい順に加える。</p>
+    <p>試験日を後ろにするか 1 日の問数を増やすと、この順に 1 周へ入る。2 周目で 80% を超えて予備日が残っていたら、手で足す。</p>
     <div class="tbl-wrap" id="t-next"></div>
   </section>
 
@@ -256,7 +260,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
     <h2>解き方のルール</h2>
     <p>前回は暗記も過去問の量も足りていたのに 4 分野すべてで届かなかった。知識ではなく「2 つ残った後の決め方」を直す。</p>
     <div class="rules">
-      <div class="rule"><div><b>20 問を 40 分で解く。2 つ残ったら問題文の最後の決まり文句に戻る</b><p>本番は 1 問 2 分。「最もコスト効率よく」「運用負荷を最小に」「最も可用性が高い」などの語が、どちらを選ぶかを決める。本文の技術的な正しさでは決めない。</p></div></div>
+      <div class="rule"><div><b>1 問 2 分で解く。2 つ残ったら問題文の最後の決まり文句に戻る</b><p>本番と同じ速さに慣れる。「最もコスト効率よく」「運用負荷を最小に」「最も可用性が高い」などの語が、どちらを選ぶかを決める。本文の技術的な正しさでは決めない。</p></div></div>
       <div class="rule"><div><b>間違えた問題は 3 つをメモして二択対照表に追加する</b><p>制約の言葉、選ぶ方、もう一方を落とす理由。この 3 つが書けない問題は、次も同じ理由で落とす。</p></div></div>
       <div class="rule"><div><b>正解でも「落とした理由」が言えなければ間違い扱いにする</b><p>消去法で当たった問題は点にならない。サイトの学習済みとは別に、自分の間違いリストに入れる。</p></div></div>
       <div class="rule"><div><b>受験の条件は 2 周目の正答率 80% 以上</b><p>下回ったら受験日を 1 週ずらし、「次に足すならこの順」から加える。65 問 130 分の通し練習は週末に 1 回できれば十分で、できなければ毎日の 40 分制限でペースを作る。</p></div></div>
@@ -454,9 +458,10 @@ function renderSub() {
   document.getElementById('t-sub').innerHTML = `<table><thead><tr><th class="n">順</th><th>小分類</th><th>内容</th><th class="n">問数</th><th class="n">比率</th><th class="n">本番換算</th><th>1 周</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// ---- 1 周で解く分（優先順）。中分類 id なら全部、小分類 id なら単独。axes はその日の夜に回す二択対照表の軸（日替わり） ----
+// ---- 1 周で解く候補（優先順）。先頭の主要分は中分類 id なら全部・小分類 id なら単独、その後ろに残りの小分類を本番換算の大きい順に並べる。
+//      axes はその日の夜に回す二択対照表の軸（日替わり） ----
 const countOf = id => (mids.find(m => m.id === id) || subs.find(s => s.id === id)).n;
-const queue = [
+const MAIN = [
   { id: '2-1', short: 'スケーラブルで疎結合', phase: 0, axes: ['8 メッセージング', '2 運用負荷'] },
   { id: '2-2', short: '高可用性と耐障害性', phase: 0, axes: ['3 可用性', '7 DR'] },
   { id: '1-3-2', short: '鍵管理で保存データを暗号化', phase: 1, axes: ['6 セキュリティ'] },
@@ -472,78 +477,115 @@ const queue = [
   { id: '3-5-3', short: 'データ転送ソリューション', phase: 3, axes: ['5 変更なし・移行'] },
   { id: '3-4-1', short: 'グローバル・ハイブリッド・多層のネットワーク構成', phase: 3, axes: ['4 性能'] },
   { id: '3-3-5', short: 'キャッシュの統合', phase: 3, axes: ['10 DB・分析'] },
-].map(q => ({ ...q, n: countOf(q.id), dom: q.id[0] }));
-const inPlan = s => queue.some(q => q.id === s.id || q.id === s.mid);
+].map(q => ({ ...q, n: countOf(q.id), dom: q.id[0], exam: examOf({ dom: q.id[0], n: countOf(q.id) }) }));
+const AXES_BY_MID = {
+  '1-1': ['6 セキュリティ'], '1-2': ['6 セキュリティ'], '1-3': ['6 セキュリティ', '11 監査・監視'],
+  '2-1': ['8 メッセージング', '2 運用負荷'], '2-2': ['3 可用性', '7 DR'],
+  '3-1': ['9 ストレージ'], '3-2': ['4 性能'], '3-3': ['10 DB・分析'], '3-4': ['4 性能'], '3-5': ['10 DB・分析', '5 変更なし・移行'],
+  '4-1': ['1 コスト', '9 ストレージ'], '4-2': ['1 コスト'], '4-3': ['1 コスト', '10 DB・分析'], '4-4': ['1 コスト'],
+};
+const coveredByMain = s => MAIN.some(q => q.id === s.id || q.id === s.mid);
+const EXTRA = subs.filter(s => !coveredByMain(s))
+  .sort((a, b) => examOf(b) - examOf(a) || a.id.localeCompare(b.id))
+  .map(s => ({ id: s.id, short: s.name, phase: 4, axes: AXES_BY_MID[s.mid], n: s.n, dom: s.dom, exam: examOf(s) }));
+const queue = [...MAIN, ...EXTRA];
+const REVIEW_PHASE = 5;
 const PHASE_INFO = [
   { dom: '2', title: '分野2 弾力性を全問', why: 'サイトでは 20% しかないが本番は 26%。1 問あたりの価値が最も高く、小さな小分類まで含めて全部解く。2-1 の疎結合（SQS・SNS・EventBridge・コンテナ・サーバーレス）と 2-2 の複数 AZ・DR が中心。' },
-  { dom: '1', title: '分野1 セキュアの主要 7 小分類', why: '本番で最大の 30%。暗号化と KMS、IAM ポリシー、SCP、WAF・Shield、外部接続の山だけを拾い、3〜13 問の小分類は 2 周目の後に回す。' },
+  { dom: '1', title: '分野1 セキュアの主要 7 小分類', why: '本番で最大の 30%。暗号化と KMS、IAM ポリシー、SCP、WAF・Shield、外部接続の山を先に拾う。' },
   { dom: '4', title: '分野4 コストの 2 小分類', why: '最頻出の 4-2-3（EC2 の購入オプション、Lambda と EC2 と Fargate の使い分け）と 4-1-8 のストレージ階層。この 2 つで分野4 の 4 割。' },
-  { dom: '3', title: '分野3 高パフォーマンスの主要 4 小分類', why: 'サイトは本番より 6 ポイント多いので、ストレージ選択・データ転送・ネットワーク構成・キャッシュの 4 つに絞る。' },
-  { dom: null, title: '間違えた問題の 2 周目', why: '1 周で間違えた問題だけを分野2 → 1 → 4 → 3 の順に解き直す。落とした問題は二択対照表にカードを足す。正答率 80% 以上で受験。' },
+  { dom: '3', title: '分野3 高パフォーマンスの主要 4 小分類', why: 'サイトは本番より 6 ポイント多いので、まずストレージ選択・データ転送・ネットワーク構成・キャッシュの 4 つ。' },
+  { dom: null, title: '追加分', why: '主要分の後ろに、残りの小分類を本番換算の大きい順に並べたもの。1 日の問数と試験日で入る分だけが 1 周に入る。' },
+  { dom: null, title: '間違えた問題の 2 周目', why: '1 周で間違えた問題だけを解いた順に解き直す。落とした問題は二択対照表にカードを足す。正答率 80% 以上で受験。' },
 ];
 
-// ---- 日程を 1 日の問数から組む ----
+// ---- 日程を「1 日の問数」と「試験日」から組む ----
 const START = new Date(2026, 10, 1);
-const HOLIDAYS = { '11/3': '祝', '11/23': '祝' };
+const DEFAULT_DAILY = 10;
+const DEFAULT_EXAM = new Date(2027, 0, 23);
+const HOLIDAYS = { '11/3': '祝', '11/23': '祝', '1/1': '祝', '1/11': '祝' };
 const DOW = ['日', '月', '火', '水', '木', '金', '土'];
 const REVIEW_RATE = 0.3;
-const KEY_DAILY = 'saa-priority-daily-v1';
+const KEY_DAILY = 'saa-priority-daily-v2';
+const KEY_EXAM = 'saa-priority-exam-v1';
 const KEY_DONE = 'saa-priority-done-v1';
 const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
 const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const diffDays = (a, b) => Math.round((b - a) / 86400000);
+const parseDate = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const reviewOf = total => Math.round(total * REVIEW_RATE);
+const daysNeeded = (total, daily) => Math.ceil(total / daily) + Math.ceil(reviewOf(total) / daily);
 
-function buildSchedule(daily) {
+// 優先順に、2 周目の分まで含めて試験日の前日までに収まるところまで取る（途中で入らなくなったら打ち切り）
+function pickIncluded(daily, available) {
+  const picked = [];
+  let total = 0;
+  for (const item of queue) {
+    if (daysNeeded(total + item.n, daily) > available) break;
+    picked.push(item);
+    total += item.n;
+  }
+  return { items: picked, total };
+}
+
+function buildSchedule(daily, examDate) {
+  const available = Math.max(0, diffDays(START, examDate)); // 11/1 から試験前日までの日数
+  const { items, total } = pickIncluded(daily, available);
   const days = [];
   let date = START;
   let qi = 0;
-  let left = queue[0].n;
-  while (qi < queue.length) {
+  let left = items.length ? items[0].n : 0;
+  while (qi < items.length) {
     const segs = [];
     let budget = daily;
-    while (budget > 0 && qi < queue.length) {
-      const item = queue[qi];
+    while (budget > 0 && qi < items.length) {
+      const item = items[qi];
       const take = Math.min(budget, left);
       segs.push({ item, take, last: take === left });
       budget -= take;
       left -= take;
-      if (left === 0) { qi += 1; left = qi < queue.length ? queue[qi].n : 0; }
+      if (left === 0) { qi += 1; left = qi < items.length ? items[qi].n : 0; }
     }
     const lead = segs[0].item;
     const k = days.filter(d => d.segs && d.segs[0].item.id === lead.id).length; // この項目が先頭の何日目か
     days.push({ date, segs, n: daily - budget, phase: lead.phase, axis: lead.axes[k % lead.axes.length] });
     date = addDays(date, 1);
   }
-  const total = queue.reduce((s, q) => s + q.n, 0);
-  const reviewN = Math.round(total * REVIEW_RATE);
+  const reviewN = reviewOf(total);
   const reviewDays = Math.ceil(reviewN / daily);
   for (let i = 0; i < reviewDays; i += 1) {
-    days.push({ date, review: true, n: Math.min(daily, reviewN - i * daily), phase: 4, axis: i % 2 ? '落とした印だけ' : '全軸を通しで' });
+    days.push({ date, review: true, n: Math.min(daily, reviewN - i * daily), phase: REVIEW_PHASE, axis: i % 2 ? '落とした印だけ' : '全軸を通しで' });
     date = addDays(date, 1);
   }
-  let exam = date;
-  while (exam.getDay() !== 6) exam = addDays(exam, 1); // 2 周目の後の最初の土曜
-  return { days, exam, total, reviewN };
+  const buffer = Math.max(0, diffDays(date, examDate));
+  return { days, exam: examDate, total, reviewN, included: items, buffer, bufferFrom: date };
 }
 
-const loadDaily = () => { try { const v = Number(localStorage.getItem(KEY_DAILY)); return v >= 5 && v <= 60 ? v : 20; } catch (e) { return 20; } };
+const loadDaily = () => { try { const v = Number(localStorage.getItem(KEY_DAILY)); return v >= 5 && v <= 60 ? v : DEFAULT_DAILY; } catch (e) { return DEFAULT_DAILY; } };
 const saveDaily = v => { try { localStorage.setItem(KEY_DAILY, String(v)); } catch (e) { /* 保存できない環境では無視 */ } };
+const loadExam = () => { try { return parseDate(localStorage.getItem(KEY_EXAM)) || DEFAULT_EXAM; } catch (e) { return DEFAULT_EXAM; } };
+const saveExam = d => { try { localStorage.setItem(KEY_EXAM, toISO(d)); } catch (e) { /* 保存できない環境では無視 */ } };
 const loadDone = () => { try { return new Set(JSON.parse(localStorage.getItem(KEY_DONE) || '[]')); } catch (e) { return new Set(); } };
 const saveDone = set => { try { localStorage.setItem(KEY_DONE, JSON.stringify([...set])); } catch (e) { /* 保存できない環境では無視 */ } };
 let daily = loadDaily();
+let examDate = loadExam();
 let done = loadDone();
-let schedule = buildSchedule(daily);
+let schedule = buildSchedule(daily, examDate);
+const inPlan = s => schedule.included.some(q => q.id === s.id || q.id === s.mid);
 
 // フェーズの問数（日程は先頭の分類でフェーズ分けするので、日ごとの合計ではなく分類の合計を出す）
-const phaseTotal = i => (i === 4 ? schedule.reviewN : queue.filter(q => q.phase === i).reduce((s, q) => s + q.n, 0));
+const phaseTotal = i => (i === REVIEW_PHASE ? schedule.reviewN : schedule.included.filter(q => q.phase === i).reduce((s, q) => s + q.n, 0));
+const phaseRange = ds => `${fmt(ds[0].date)}〜${fmt(ds[ds.length - 1].date)}`;
 
 function renderPhases() {
   document.getElementById('phases').innerHTML = PHASE_INFO.map((p, i) => {
     const ds = schedule.days.filter(d => d.phase === i);
-    const n = phaseTotal(i);
-    const ids = queue.filter(q => q.phase === i).map(q => q.id).join('・');
+    if (!ds.length) return '';
+    const ids = schedule.included.filter(q => q.phase === i).map(q => q.id).join('・');
     return `<div class="phase" style="--c:${p.dom ? colorOf(p.dom) : 'var(--accent)'}">
-      <div class="no">${i + 1}<small>${fmt(ds[0].date)}〜${fmt(ds[ds.length - 1].date)}</small></div>
-      <div class="body"><h3>${esc(p.title)}<span class="phase-n">${n} 問 · ${ds.length} 日</span></h3><p>${esc(p.why)}</p>${ids ? `<p class="ids">サイトで選ぶ分類: ${esc(ids)}</p>` : ''}</div></div>`;
+      <div class="no">${i + 1}<small>${phaseRange(ds)}</small></div>
+      <div class="body"><h3>${esc(p.title)}<span class="phase-n">${phaseTotal(i)} 問 · ${ds.length} 日</span></h3><p>${esc(p.why)}</p>${ids ? `<p class="ids">サイトで選ぶ分類: ${esc(ids)}</p>` : ''}</div></div>`;
   }).join('');
 }
 
@@ -553,11 +595,11 @@ function segText(s) {
 }
 
 function renderPlan() {
-  const { days, exam, total, reviewN } = schedule;
+  const { days, exam, total, reviewN, buffer, bufferFrom } = schedule;
   const html = PHASE_INFO.map((p, i) => {
     const ds = days.filter(d => d.phase === i);
-    const sum = phaseTotal(i);
-    const head = `<div class="ph">${i + 1} ${esc(p.title)}<span>${fmt(ds[0].date)}〜${fmt(ds[ds.length - 1].date)} · ${sum} 問</span></div>`;
+    if (!ds.length) return '';
+    const head = `<div class="ph">${i + 1} ${esc(p.title)}<span>${phaseRange(ds)} · ${phaseTotal(i)} 問</span></div>`;
     const rows = ds.map(d => {
       const key = fmt(d.date);
       const task = d.review ? '間違えた問題の 2 周目' : d.segs.map(segText).join('<span class="then">→</span>');
@@ -569,24 +611,31 @@ function renderPlan() {
     }).join('');
     return head + rows;
   }).join('');
-  const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(exam)}</b>（${DOW[exam.getDay()]}）</span><span class="task">本番。この土曜か翌日の日曜で予約する</span><span class="n"></span><span class="deck"></span></div>`;
-  document.getElementById('plan-table').innerHTML = html + examRow;
-  const firstDays = days.filter(d => !d.review).length;
-  document.getElementById('plan-summary').textContent =
-    `1 日 ${daily} 問なら、1 周 ${total} 問が ${firstDays} 日（${fmt(days[0].date)}〜${fmt(days[firstDays - 1].date)}）、2 周目は間違い ${reviewN} 問を ${days.length - firstDays} 日、試験は ${fmt(exam)}（${DOW[exam.getDay()]}）。`;
+  const bufferRow = buffer > 0
+    ? `<div class="day buffer"><span></span><span class="date"><b>${fmt(bufferFrom)}〜</b></span><span class="task">予備 ${buffer} 日。遅れの吸収と、週末に 1 回の 65 問 130 分の通し練習</span><span class="n"></span><span class="deck"></span></div>`
+    : '';
+  const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(exam)}</b>（${DOW[exam.getDay()]}）</span><span class="task">本番</span><span class="n"></span><span class="deck"></span></div>`;
+  document.getElementById('plan-table').innerHTML = html + bufferRow + examRow;
+  const first = days.filter(d => !d.review);
+  const review = days.filter(d => d.review);
+  document.getElementById('plan-summary').textContent = first.length
+    ? `1 日 ${daily} 問・試験 ${fmt(exam)}（${DOW[exam.getDay()]}）なら、1 周は ${total} 問を ${first.length} 日（${phaseRange(first)}）、2 周目は間違い ${reviewN} 問を ${review.length} 日（${phaseRange(review)}）、予備 ${buffer} 日。`
+    : '試験日が近すぎて 1 周に入る分がありません。試験日を後ろにするか、1 日の問数を増やしてください。';
   updateProgress();
 }
 
 function updateProgress() {
   const doneDays = schedule.days.filter(d => done.has(fmt(d.date)));
   const q = doneDays.reduce((s, d) => s + d.n, 0);
-  document.getElementById('plan-progress').textContent = `終わった日 ${doneDays.length} / ${schedule.days.length}　解いた問数 ${q} 問。チェックと 1 日の問数はこのブラウザだけに保存される。`;
+  document.getElementById('plan-progress').textContent = `終わった日 ${doneDays.length} / ${schedule.days.length}　解いた問数 ${q} 問。チェック・1 日の問数・試験日はこのブラウザだけに保存される。`;
 }
 
 function renderNext() {
-  const rest = subs.filter(s => !inPlan(s)).sort((a, b) => examOf(b) - examOf(a)).slice(0, 10);
-  const rows = rest.map(s => `<tr><td><span class="chip" style="--c:${colorOf(s.dom)}"></span>${esc(s.id)}</td><td>${esc(s.name)}</td><td class="n">${s.n}</td><td class="n">${examOf(s).toFixed(1)}</td></tr>`).join('');
-  document.getElementById('t-next').innerHTML = `<table><thead><tr><th>小分類</th><th>内容</th><th class="n">問数</th><th class="n">本番換算</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const rest = queue.filter(q => !schedule.included.includes(q)).slice(0, 10);
+  const rows = rest.map(q => `<tr><td><span class="chip" style="--c:${colorOf(q.dom)}"></span>${esc(q.id)}</td><td>${esc(q.short)}</td><td class="n">${q.n}</td><td class="n">${q.exam.toFixed(1)}</td></tr>`).join('');
+  document.getElementById('t-next').innerHTML = rest.length
+    ? `<table><thead><tr><th>分類</th><th>内容</th><th class="n">問数</th><th class="n">本番換算</th></tr></thead><tbody>${rows}</tbody></table>`
+    : '<p>全 773 問が 1 周に入っている。</p>';
 }
 
 function renderTile() {
@@ -596,20 +645,30 @@ function renderTile() {
 }
 
 function rebuild() {
-  schedule = buildSchedule(daily);
+  schedule = buildSchedule(daily, examDate);
   renderTile();
+  renderSub();
   renderPhases();
   renderPlan();
   renderNext();
 }
 
 const dailyInput = document.getElementById('daily');
+const examInput = document.getElementById('exam');
 dailyInput.value = daily;
+examInput.value = toISO(examDate);
 dailyInput.addEventListener('change', () => {
   const v = Number(dailyInput.value);
-  daily = v >= 5 && v <= 60 ? v : 20;
+  daily = v >= 5 && v <= 60 ? v : DEFAULT_DAILY;
   dailyInput.value = daily;
   saveDaily(daily);
+  rebuild();
+});
+examInput.addEventListener('change', () => {
+  const d = parseDate(examInput.value);
+  examDate = d && d > START ? d : examDate;
+  examInput.value = toISO(examDate);
+  saveExam(examDate);
   rebuild();
 });
 document.getElementById('plan-table').addEventListener('change', e => {
@@ -650,7 +709,6 @@ document.addEventListener('touchstart', e => {
 
 renderDomain();
 renderMid();
-renderSub();
 rebuild();
 </script>
 </body>
