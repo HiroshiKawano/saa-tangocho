@@ -477,7 +477,7 @@
       return `
         <header class="head">
           <h1>SAA 定番構成図 単語帳</h1>
-          <span class="meta">${DECKS.length} 構成図 · ${ALL_CARDS.length} 枚 · 10/2 03:50 版</span>
+          <span class="meta">${DECKS.length} 構成図 · ${ALL_CARDS.length} 枚 · 10/31 20:46 版</span>
         </header>
         <p class="lead">構成図を選ぶと出題キーワードが出る。タップで正解と補足を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -486,7 +486,7 @@
           <label class="toggle" for="shuffle"><input type="checkbox" id="shuffle" ${state.shuffle ? 'checked' : ''}>シャッフル</label>
         </div>
         <div class="decks">${DECKS.map(renderDeckRow).join('')}</div>
-        ${clearBtn}<p class="foot"><a class="xlink" href="./index.html">鉄板パターンの単語帳へ →</a></p>`;
+        ${clearBtn}<p class="foot"><a class="xlink" href="./index.html">鉄板パターンの単語帳へ →</a><a class="xlink" href="./nitaku.html">二択対照表へ →</a></p>`;
     }
     function renderDeckRow(deck) {
       const m = missedIn(flatCards(deck));

@@ -1,0 +1,22 @@
+{
+  "name": "SAA 二択対照表",
+  "short_name": "SAA 二択",
+  "start_url": "./nitaku.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f4f7",
+  "theme_color": "#2b7f52",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "nitaku-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "nitaku-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
