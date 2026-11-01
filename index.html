@@ -309,9 +309,8 @@
   .q.q-long { font-size: clamp(24px, 6.7vw, 28px); }
   .a-main.a-name { font-size: clamp(36px, 10.3vw, 44px); line-height: 1.3; overflow-wrap: break-word; }
   .a-main.a-name.a-long { font-size: clamp(30px, 8.2vw, 36px); }
-  /* 二択対照表の答え側: 選ぶ方の候補を正解名と同じ大きさに */
-  .vs .cand { font-size: 17px; }
-  .vs .cand.pick { font-size: clamp(28px, 7.7vw, 34px); line-height: 1.3; }
+  /* 二択対照表の答え側: 候補 2 つを正解名と同じ大きさに（違いは色だけ） */
+  .vs .cand { font-size: clamp(28px, 7.7vw, 34px); line-height: 1.3; }
   /* もう一方のアプリへのリンク（一覧画面の末尾） */
   .xlink { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
 </style>
@@ -441,7 +440,7 @@
       return `
         <header class="head">
           <h1>SAA 鉄板パターン単語帳</h1>
-          <span class="meta">${DECKS.length} 表 · ${ALL_CARDS.length} 枚 · 11/1 19:17 版</span>
+          <span class="meta">${DECKS.length} 表 · ${ALL_CARDS.length} 枚 · 11/1 19:25 版</span>
         </header>
         <p class="lead">表を選ぶとキーワードが出る。タップで正解と根拠を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
