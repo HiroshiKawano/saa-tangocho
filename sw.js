@@ -1,5 +1,5 @@
 // キャッシュ名にページ内容のハッシュを含め、更新時に古いキャッシュを捨てる
-const CACHE = 'saa-tangocho-6e684f06cc4f';
+const CACHE = 'saa-tangocho-5b6f413ade14';
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png", "./kouseizu.html", "./kouseizu.webmanifest", "./kouseizu-icon-180.png", "./kouseizu-icon-512.png", "./nitaku.html", "./nitaku.webmanifest", "./nitaku-icon-180.png", "./nitaku-icon-512.png", "./shutsudai.html"];
 const PAGES = ["/", "/index.html", "/kouseizu.html", "/nitaku.html", "/shutsudai.html"];
 

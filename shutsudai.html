@@ -174,6 +174,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .pace .chk { display: inline-flex; align-items: center; gap: 4px; }
 .day .date small { color: var(--muted); font-size: 11.5px; }
 .day.over .date b { color: var(--d2); }
+.day.gap { color: var(--fg2); }
 .day.buffer { color: var(--fg2); }
 .then { color: var(--muted); margin: 0 6px; }
 .day .task small { color: var(--muted); font-size: 12px; }
@@ -187,7 +188,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   <header style="display:grid;gap:14px">
     <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
     <h1>SAA 出題率と優先順位</h1>
-    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、11/2 から平日だけで、まず二択対照表を 1 日 1 軸で 11 日、続けて過去問 402 問を小分類丸ごと単位の優先順で 1 回 10 問ずつ進める計画にした。</p>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、11/2 から平日だけで、まず二択対照表を 1 日 1 軸で 12 日、続けて過去問 402 問を小分類丸ごと単位の優先順で 1 回 10 問ずつ進める計画にした。</p>
     <div class="tiles">
       <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
       <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。全問やる唯一の分野</div></div>
@@ -249,8 +250,8 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="plan">
     <h2>日程</h2>
-    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回ずつ割り当てた。祝日は平日扱いにしてあるが、休むなら切り替えられる。最初の 11 回は二択対照表を 1 日 1 軸、続けて過去問を 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
-    <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="start">開始日</label><input type="date" id="start" value="2026-11-02"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-30"><label class="chk"><input type="checkbox" id="skiphol"> 祝日も休む</label></div>
+    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回ずつ割り当てた。祝日も休む。最初の 12 回は二択対照表で 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。過去問は 11/23 以降の最初の勉強日から 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
+    <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="start">開始日</label><input type="date" id="start" value="2026-11-02"><label for="pqstart">過去問の開始日</label><input type="date" id="pqstart" value="2026-11-23"><label for="exam">試験日</label><input type="date" id="exam" value="2027-02-06"><label class="chk"><input type="checkbox" id="skiphol" checked> 祝日も休む</label></div>
     <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
     <div class="plan-foot"><span id="plan-progress"></span><button type="button" id="plan-reset">チェックを全部外す</button></div>
@@ -462,10 +463,12 @@ function renderSub() {
 }
 
 // ---- 段階 0: 二択対照表を 1 日 1 軸（番号順、11 日） ----
+// 軸 6 は 42 枚あるので、一覧のグループに合わせて前半（ネットワーク ①②＋セキュリティ ①）と後半（セキュリティ ②③④＋ストレージ）の 2 日に分ける
 const NITAKU_AXES = [
-  ['1', 'コスト', 21], ['2', '運用負荷', 28], ['3', '可用性', 19], ['4', '性能', 25], ['5', '変更なし・移行', 22],
-  ['6', 'セキュリティ', 42], ['7', 'DR', 19], ['8', 'メッセージング', 24], ['9', 'ストレージ', 21], ['10', 'DB・分析', 20], ['11', '監査・監視', 27],
-].map(([no, name, cards]) => ({ no, name, cards }));
+  ['1', 'コスト', '', 21], ['2', '運用負荷', '', 28], ['3', '可用性', '', 19], ['4', '性能', '', 25], ['5', '変更なし・移行', '', 22],
+  ['6', 'セキュリティ', '前半（ネットワーク ①②・セキュリティ ①）', 19], ['6', 'セキュリティ', '後半（セキュリティ ②③④・ストレージ）', 23],
+  ['7', 'DR', '', 19], ['8', 'メッセージング', '', 24], ['9', 'ストレージ', '', 21], ['10', 'DB・分析', '', 20], ['11', '監査・監視', '', 27],
+].map(([no, name, part, cards]) => ({ no, name, part, cards }));
 const NITAKU_TOTAL = NITAKU_AXES.reduce((s, a) => s + a.cards, 0);
 
 // ---- 段階 1〜3: 1 周で解く小分類（優先順、約 400 問）。小分類は丸ごと解き、途中で切らない。
@@ -508,7 +511,7 @@ const inPlan = s => PLAN_IDS.has(s.id);
 const NITAKU_PHASE = 0;
 const REVIEW_PHASE = 4;
 const PHASE_INFO = [
-  { dom: null, title: '二択対照表を 1 日 1 軸', why: '最後の 2 択の決め方を先に固める。表の「A か B」と制約を読んだら、選ぶ方ともう一方を落とす理由の両方を口に出してからめくり、どちらかが言えなければ落とした印を付ける。軸 1 から順に 1 日 1 軸。' },
+  { dom: null, title: '二択対照表を 1 日 1 軸', why: '最後の 2 択の決め方を先に固める。制約を読んだら、選ぶサービスと、もう一方の候補を落とす理由の両方を口に出してからめくり、どちらかが言えなければ落とした印を付ける。軸 1 から順に 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。' },
   { dom: '2', title: '分野2 弾力性を全問', why: 'サイトでは 20% しかないが本番は 26%。1 問あたりの価値が最も高く、1 問しかない小分類まで含めて全部解く。2-1 の疎結合（SQS・SNS・EventBridge・コンテナ・サーバーレス）と 2-2 の複数 AZ・DR が中心。' },
   { dom: '1', title: '分野1 セキュアの主要 7 小分類', why: '本番で最大の 30%。IAM ポリシーと SCP、WAF・Shield と外部接続、暗号化と KMS、データ保護の順に解く。' },
   { dom: '4', title: '分野4 コストの主要 5 小分類', why: '1 問あたりの価値が分野2 に次いで高い。4-2-3 の購入オプションと Lambda・EC2・Fargate、4-1 のストレージ階層とライフサイクル、4-3-3 の DB サービス選択。分野3 は 1 問の価値が最も低いので 1 周に入れず、二択対照表の軸 4・9・10 で補う。' },
@@ -518,14 +521,17 @@ const PHASE_INFO = [
 // ---- 平日だけに 1 回ずつ割り当てる。土日は休み。祝日は既定では勉強日（切り替え可） ----
 const DEFAULT_DAILY = 10;
 const DEFAULT_START = new Date(2026, 10, 2);
-const DEFAULT_EXAM = new Date(2027, 0, 30);
+const DEFAULT_EXAM = new Date(2027, 1, 6);
+const DEFAULT_PQ_START = new Date(2026, 10, 23); // 過去問はこの日以降の最初の勉強日から
+const DEFAULT_SKIPHOL = true;
 const REVIEW_RATE = 0.3;
 const DOW = ['日', '月', '火', '水', '木', '金', '土'];
 const HOLIDAYS = { '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日', '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日', '2027-02-23': '天皇誕生日' };
 const KEY_DAILY = 'saa-priority-daily-v3';
 const KEY_START = 'saa-priority-start-v1';
 const KEY_EXAM = 'saa-priority-exam-v2';
-const KEY_SKIPHOL = 'saa-priority-skiphol-v1';
+const KEY_SKIPHOL = 'saa-priority-skiphol-v2';
+const KEY_PQSTART = 'saa-priority-pqstart-v1';
 const KEY_DONE = 'saa-priority-done-v3';
 const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
 const fmtDow = d => `${fmt(d)}（${DOW[d.getDay()]}）`;
@@ -588,12 +594,18 @@ function buildSessions(daily) {
   return { sessions: [...nitaku, ...mergeSmallLast(first, daily), ...mergeSmallLast(review, daily)], total, reviewN };
 }
 
-// 回に日付を付ける。勉強日が足りない分は date が null のまま残る
-function buildSchedule(daily, start, exam, skipHol) {
+// 回に日付を付ける。二択対照表は開始日から順に、過去問は「過去問の開始日」以降の最初の勉強日から順に。
+// 間が空けば gap に入れる。勉強日が足りない分は date が null のまま残る
+function buildSchedule(daily, start, exam, skipHol, pqStart) {
   const { sessions, total, reviewN } = buildSessions(daily);
   const dates = studyDates(start, exam, skipHol);
-  const dated = sessions.map((s, i) => ({ ...s, no: i + 1, date: dates[i] || null }));
-  return { sessions: dated, total, reviewN, dates, spare: dates.length - dated.length };
+  const nitakuCount = sessions.filter((s) => s.nitaku).length;
+  const afterNitaku = dates.slice(nitakuCount);
+  const pqFrom = afterNitaku.findIndex((d) => d >= pqStart);
+  const pqDates = pqFrom < 0 ? [] : afterNitaku.slice(pqFrom);
+  const gap = pqFrom < 0 ? afterNitaku : afterNitaku.slice(0, pqFrom);
+  const dated = sessions.map((s, i) => ({ ...s, no: i + 1, date: (s.nitaku ? dates[i] : pqDates[i - nitakuCount]) || null }));
+  return { sessions: dated, total, reviewN, dates, gap, spare: pqDates.length - (sessions.length - nitakuCount) };
 }
 
 const store = {
@@ -604,9 +616,10 @@ const clampInt = (v, lo, hi) => (Number.isInteger(v) && v >= lo && v <= hi ? v :
 let daily = store.get(KEY_DAILY, DEFAULT_DAILY, v => clampInt(Number(v), 5, 30));
 let startDate = store.get(KEY_START, DEFAULT_START, parseDate);
 let examDate = store.get(KEY_EXAM, DEFAULT_EXAM, parseDate);
-let skipHol = store.get(KEY_SKIPHOL, false, v => v === '1');
+let skipHol = store.get(KEY_SKIPHOL, DEFAULT_SKIPHOL, v => v === '1');
+let pqStart = store.get(KEY_PQSTART, DEFAULT_PQ_START, parseDate);
 let done = store.get(KEY_DONE, new Set(), v => new Set(JSON.parse(v)));
-let schedule = buildSchedule(daily, startDate, examDate, skipHol);
+let schedule = buildSchedule(daily, startDate, examDate, skipHol, pqStart);
 
 const phaseTotal = i => {
   if (i === NITAKU_PHASE) return NITAKU_TOTAL;
@@ -626,7 +639,7 @@ function renderPhases() {
     const ss = schedule.sessions.filter(s => s.phase === i);
     if (!ss.length) return '';
     const ids = i === NITAKU_PHASE
-      ? NITAKU_AXES.map(a => `軸 ${a.no}（${a.cards}）`).join('・')
+      ? NITAKU_AXES.map(a => `軸 ${a.no}${a.part ? ' ' + a.part.slice(0, 2) : ''}（${a.cards}）`).join('・')
       : PLAN_ITEMS.filter(q => q.phase === i).map(q => `${q.id}（${q.n}）`).join('・');
     return `<div class="phase" style="--c:${p.dom ? colorOf(p.dom) : 'var(--accent)'}">
       <div class="no">${i}<small>${dateRange(ss)}</small></div>
@@ -640,7 +653,7 @@ function segText(s) {
 }
 
 function taskText(s) {
-  if (s.nitaku) return `<i class="cat" style="--c:var(--accent)"></i>二択対照表 軸 ${esc(s.nitaku.no)} ${esc(s.nitaku.name)} を 1 周 <small>落とした印を付けながら</small>`;
+  if (s.nitaku) return `<i class="cat" style="--c:var(--accent)"></i>二択対照表 軸 ${esc(s.nitaku.no)} ${esc(s.nitaku.name)}${s.nitaku.part ? ' ' + esc(s.nitaku.part) : ''} を 1 周 <small>落とした印を付けながら</small>`;
   if (s.review) return '間違えた問題の 2 周目';
   return s.segs.map(segText).join('<span class="then">→</span>');
 }
@@ -664,7 +677,7 @@ function renderPlan() {
         <span class="task">${taskText(s)}</span>
         <span class="n">${s.n} ${s.unit}</span></label>`;
     }).join('');
-    return head + rows;
+    return head + rows + (i === NITAKU_PHASE ? gapRow() : '');
   }).join('');
   const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(examDate)}</b>（${DOW[examDate.getDay()]}）</span><span class="task">本番</span><span class="n"></span></div>`;
   document.getElementById('plan-table').innerHTML = html + examRow;
@@ -672,14 +685,24 @@ function renderPlan() {
   updateProgress();
 }
 
+// 二択対照表と過去問の間の空き日（過去問の開始日を後ろに置いたときだけ出る）
+function gapRow() {
+  const { gap, sessions } = schedule;
+  if (!gap.length) return '';
+  const first = sessions.find((s) => !s.nitaku && s.date);
+  const span = gap.length > 1 ? `${fmtDow(gap[0])}〜${fmtDow(gap[gap.length - 1])}` : fmtDow(gap[0]);
+  return `<div class="day gap"><span></span><span class="date"><b>${span}</b></span><span class="task">空き ${gap.length} 日。過去問は ${first ? fmtDow(first.date) : '—'} から</span><span class="n"></span></div>`;
+}
+
 function updateSummary() {
-  const { sessions, total, reviewN, dates, spare } = schedule;
+  const { sessions, total, reviewN, dates, gap, spare } = schedule;
   const holCount = dates.filter(holidayOf).length;
   const nitaku = sessions.filter(s => s.nitaku);
   const first = sessions.filter(s => !s.nitaku && !s.review);
   const review = sessions.filter(s => s.review);
   const summary = document.getElementById('plan-summary');
-  const base = `${fmtDow(startDate)}から試験前日まで、土日を除いた勉強日は ${dates.length} 日${skipHol ? '（祝日も除く）' : holCount ? `（祝日 ${holCount} 日を含む）` : ''}。全 ${sessions.length} 回のうち、二択対照表 ${nitaku.length} 回は ${dateRange(nitaku)}、過去問 1 周 ${first.length} 回 ${total} 問は ${dateRange(first)}、2 周目 ${review.length} 回 ${reviewN} 問は ${dateRange(review)}。`;
+  const gapText = gap.length ? `空き ${gap.length} 日（${fmt(gap[0])}〜${fmt(gap[gap.length - 1])}）、` : '';
+  const base = `${fmtDow(startDate)}から試験前日まで、土日${skipHol ? 'と祝日' : ''}を除いた勉強日は ${dates.length} 日${!skipHol && holCount ? `（祝日 ${holCount} 日を含む）` : ''}。全 ${sessions.length} 回のうち、二択対照表 ${nitaku.length} 回は ${dateRange(nitaku)}、${gapText}過去問 1 周 ${first.length} 回 ${total} 問は ${dateRange(first)}、2 周目 ${review.length} 回 ${reviewN} 問は ${dateRange(review)}。`;
   summary.textContent = spare >= 0
     ? `${base}予備の勉強日は ${spare} 日。`
     : `${base}${-spare} 回が日程に入らない。試験日を後ろにするか、1 周の末尾（4-3-3 → 4-1-10 → 4-1-5 の順）から ${-spare * daily} 問分を外す。`;
@@ -711,7 +734,7 @@ function renderTile() {
 }
 
 function rebuild() {
-  schedule = buildSchedule(daily, startDate, examDate, skipHol);
+  schedule = buildSchedule(daily, startDate, examDate, skipHol, pqStart);
   renderTile();
   renderSub();
   renderPhases();
@@ -722,10 +745,12 @@ function rebuild() {
 const dailyInput = document.getElementById('daily');
 const startInput = document.getElementById('start');
 const examInput = document.getElementById('exam');
+const pqStartInput = document.getElementById('pqstart');
 const skipHolInput = document.getElementById('skiphol');
 dailyInput.value = daily;
 startInput.value = toISO(startDate);
 examInput.value = toISO(examDate);
+pqStartInput.value = toISO(pqStart);
 skipHolInput.checked = skipHol;
 dailyInput.addEventListener('change', () => {
   daily = clampInt(Number(dailyInput.value), 5, 30) ?? DEFAULT_DAILY;
@@ -745,6 +770,13 @@ examInput.addEventListener('change', () => {
   examDate = d && d > startDate ? d : examDate;
   examInput.value = toISO(examDate);
   store.set(KEY_EXAM, toISO(examDate));
+  rebuild();
+});
+pqStartInput.addEventListener('change', () => {
+  const d = parseDate(pqStartInput.value);
+  pqStart = d && d >= startDate && d < examDate ? d : pqStart;
+  pqStartInput.value = toISO(pqStart);
+  store.set(KEY_PQSTART, toISO(pqStart));
   rebuild();
 });
 skipHolInput.addEventListener('change', () => {
