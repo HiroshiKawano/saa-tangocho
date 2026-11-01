@@ -490,6 +490,8 @@
     const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
     const esc = (s) => String(s).replace(/[&<>"']/g, (ch) => ESC[ch]);
     const fmt = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    // 答え側の文章は「。」「、」のあとで改行する（スマホで 1 文ずつ読めるように）。末尾の句読点のあとには入れない
+    const sentenceBreaks = (html) => html.replace(/([。、])(?=.)/g, '$1<br>');
     const missedIn = (cards) => cards.filter((c) => state.missed.has(c.key)).length;
 
     // 全角 1・半角 0.55 として見た目の幅を概算し、長い文字列に一段小さく表示するためのクラスを付ける
@@ -544,7 +546,7 @@
       return `
         <header class="head">
           <h1>SAA 二択対照表</h1>
-          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 19:09 版</span>
+          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 19:17 版</span>
         </header>
         <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。制約だけが出るので、どのサービスを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -636,7 +638,7 @@
     // 答え側: 正解名の位置に候補の組を出し、選ぶ方だけを大きく色付きにする（正解名は候補名と同じなので別に出さない）
     function renderAnswer(card) {
       const { rest } = splitAnswer(card.a);
-      const note = card.n ? `<hr class="divider"><div class="eyebrow">${esc(COLS.n)}</div><div class="n">${fmt(card.n)}</div>` : '';
+      const note = card.n ? `<hr class="divider"><div class="eyebrow">${esc(COLS.n)}</div><div class="n">${sentenceBreaks(fmt(card.n))}</div>` : '';
       const icons = (card.icon || []).map((key) => renderIcon(key)).filter(Boolean);
       const headClass = icons.length ? ' with-icon vs-head' : ' vs-head';
       return `
@@ -648,7 +650,7 @@
             </div>
             ${icons.length ? `<div class="a-icons">${icons.join('')}</div>` : ''}
           </div>
-          ${rest ? `<div class="a-rest">${fmt(rest)}</div>` : ''}
+          ${rest ? `<div class="a-rest">${sentenceBreaks(fmt(rest))}</div>` : ''}
           ${note}
         </div>`;
     }
