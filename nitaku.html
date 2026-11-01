@@ -197,11 +197,11 @@
   .parts .link { padding: 2px 6px; font-size: 12.5px; }
   .parts .link.tbl-link { color: var(--accent-ink); }
 
-  /* ---------- 二択の候補（カード表面の上段） ---------- */
-  .vs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-family: var(--font-jp); font-weight: 500; color: var(--ink-2); }
-  .vs .cand { padding: 2px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+  /* ---------- 二択の候補（答え側、正解名の位置）。選ぶ方は正解名と同じ大きさで色付き、もう一方は小さく薄く ---------- */
+  .vs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-family: var(--font-jp); font-weight: 500; color: var(--ink-3); }
+  .vs .cand { padding: 2px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); font-size: 15px; }
   .vs .or { font-size: 13px; color: var(--ink-3); }
-  .vs .cand.pick { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+  .vs .cand.pick { padding: 4px 14px; background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: clamp(20px, 3vw, 26px); line-height: 1.4; }
 
   /* ---------- 対照表画面 ---------- */
   .tbl { display: flex; flex-direction: column; margin-top: 4px; }
@@ -279,6 +279,8 @@
   .a-icon { flex: none; width: var(--icon); height: var(--icon); }
   .a-main { font-size: clamp(20px, 3vw, 26px); font-weight: 700; line-height: 1.4; color: var(--accent-ink); text-wrap: balance; }
   .a-main.a-long { font-size: clamp(18px, 2.6vw, 22px); }
+  /* 候補の組を出す答え側は、上の min-content の決まりを使わず、幅いっぱいで折り返す */
+  .a-head.vs-head .a-body { flex: 1 1 auto; width: auto; min-width: 0; max-width: none; }
   .a-rest { color: var(--ink-2); }
   .divider { border: 0; height: 2px; width: 100%; margin: 8px 0 4px; background: var(--surface-2); }
   .n { color: var(--ink-2); }
@@ -361,6 +363,9 @@
   .q.q-long { font-size: clamp(24px, 6.7vw, 28px); }
   .a-main.a-name { font-size: clamp(36px, 10.3vw, 44px); line-height: 1.3; overflow-wrap: break-word; }
   .a-main.a-name.a-long { font-size: clamp(30px, 8.2vw, 36px); }
+  /* 二択対照表の答え側: 選ぶ方の候補を正解名と同じ大きさに */
+  .vs .cand { font-size: 17px; }
+  .vs .cand.pick { font-size: clamp(28px, 7.7vw, 34px); line-height: 1.3; }
   /* もう一方のアプリへのリンク（一覧画面の末尾） */
   .xlink { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
 </style>
@@ -502,7 +507,7 @@
       return `
         <header class="head">
           <h1>SAA 二択対照表</h1>
-          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 14:53 版</span>
+          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 18:53 版</span>
         </header>
         <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。候補と制約が出るので、どちらを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -559,9 +564,7 @@
         </div>
         <div class="track"><i style="width:${pct}%"></i></div>
         <div class="card" role="button" tabindex="0" data-action="advance" aria-live="polite">
-          <div class="eyebrow"><span>${esc(COLS.vs)}</span>${deckTag}${partTag}${wasMissed}</div>
-          ${renderVs(card, state.flipped)}
-          <div class="eyebrow"><span>${esc(COLS.q)}</span></div>
+          <div class="eyebrow"><span>${esc(COLS.q)}</span>${deckTag}${partTag}${wasMissed}</div>
           <div class="q${qSizeClass(card.q)}">${esc(phraseBreaks(card.q))}</div>
           ${body}
         </div>
@@ -571,10 +574,10 @@
           <span>左スワイプ 次へ · 右スワイプ 前へ</span>
         </p>`;
     }
-    // 二択の候補を並べる。答えを出した後は、選ぶ方（card.pick ＝ 候補の添字）だけを強調する
-    function renderVs(card, flipped) {
+    // 二択の候補を並べる（答え側だけ。表面には出さず、制約だけから思い出させる）。選ぶ方（card.pick ＝ 候補の添字）を大きく強調する
+    function renderVs(card) {
       const items = card.vs.map((name, i) => {
-        const cls = flipped && i === card.pick ? 'cand pick' : 'cand';
+        const cls = i === card.pick ? 'cand pick' : 'cand';
         return `<span class="${cls}">${esc(name)}</span>`;
       });
       return `<div class="vs">${items.join('<span class="or">か</span>')}</div>`;
@@ -594,19 +597,18 @@
         + `<path transform="translate(${dx.toFixed(2)} ${dy.toFixed(2)}) scale(${scale.toFixed(4)})" d="${esc(glyph.d)}" fill="#fff"/>`
         + '</svg>';
     }
+    // 答え側: 正解名の位置に候補の組を出し、選ぶ方だけを大きく色付きにする（正解名は候補名と同じなので別に出さない）
     function renderAnswer(card) {
-      const { main, rest, isName } = splitAnswer(card.a);
+      const { rest } = splitAnswer(card.a);
       const note = card.n ? `<hr class="divider"><div class="eyebrow">${esc(COLS.n)}</div><div class="n">${fmt(card.n)}</div>` : '';
-      const mainClass = isName ? `a-name${longClass(main, 22, 'a-long')}` : 'a-text';
       const icons = (card.icon || []).map((key) => renderIcon(key)).filter(Boolean);
-      const hasJa = [...main].some((ch) => isHira(ch) || isKata(ch) || isKanji(ch));
-      const headClass = icons.length ? ` with-icon${hasJa ? ' ja' : ''}` : '';
+      const headClass = icons.length ? ' with-icon vs-head' : ' vs-head';
       return `
         <div class="answer">
           <div class="a-head${headClass}">
             <div class="a-body">
               <div class="eyebrow">${esc(COLS.a)}</div>
-              <div class="a-main ${mainClass}">${fmt(main)}</div>
+              ${renderVs(card)}
             </div>
             ${icons.length ? `<div class="a-icons">${icons.join('')}</div>` : ''}
           </div>
