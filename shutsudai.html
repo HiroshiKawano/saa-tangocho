@@ -125,7 +125,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .plan { display: grid; gap: 0; border: 1px solid var(--ring); border-radius: 8px; overflow: hidden; background: var(--surface); }
 .plan .ph { background: var(--accent-soft); font-size: 12.5px; font-weight: 700; padding: 6px 14px; color: var(--fg); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .plan .ph span { font-weight: 500; color: var(--fg2); }
-.day { display: grid; grid-template-columns: 28px 64px 1fr 4em 11em; gap: 10px; align-items: start; padding: 7px 14px; border-top: 1px solid var(--grid); font-size: 13.5px; }
+.day { display: grid; grid-template-columns: 28px 64px 1fr 4em; gap: 10px; align-items: start; padding: 7px 14px; border-top: 1px solid var(--grid); font-size: 13.5px; }
 .day:has(input:checked) { color: var(--muted); }
 .day:has(input:checked) .task { text-decoration: line-through; }
 .day input { width: 16px; height: 16px; margin: 4px 0 0; accent-color: var(--accent); }
@@ -135,7 +135,6 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .day .task { min-width: 0; }
 .day .task .cat { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: 1px; }
 .day .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.day .deck { color: var(--fg2); font-size: 12.5px; }
 .day.exam { background: var(--accent-soft); font-weight: 700; }
 .plan-foot { font-size: 12.5px; color: var(--fg2); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .plan-foot button { font: inherit; font-size: 12px; color: var(--accent); background: none; border: 1px solid var(--ring); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
@@ -160,7 +159,6 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   .row .lab { white-space: normal; }
   .phase { grid-template-columns: 44px 1fr; }
   .day { grid-template-columns: 24px 60px 1fr 3.5em; }
-  .day .deck { grid-column: 3 / span 2; margin-top: -2px; }
 }
 @media (prefers-reduced-motion: no-preference) { .row .bar { transition: width .4s ease; } }
 .apps { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; border-top: 1px solid var(--grid); padding-top: 18px; }
@@ -251,7 +249,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="plan">
     <h2>日程</h2>
-    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回ずつ割り当てた。祝日は平日扱いにしてあるが、休むなら切り替えられる。最初の 11 回は二択対照表を 1 日 1 軸、続けて過去問を 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。右端の二択の軸は時間が余った日だけでよい。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
+    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回ずつ割り当てた。祝日は平日扱いにしてあるが、休むなら切り替えられる。最初の 11 回は二択対照表を 1 日 1 軸、続けて過去問を 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
     <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="start">開始日</label><input type="date" id="start" value="2026-11-02"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-30"><label class="chk"><input type="checkbox" id="skiphol"> 祝日も休む</label></div>
     <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
@@ -664,12 +662,11 @@ function renderPlan() {
       return `<label class="day${s.date ? '' : ' over'}"><input type="checkbox" data-key="${key}" ${done.has(key) ? 'checked' : ''}>
         ${dateCell(s)}
         <span class="task">${taskText(s)}</span>
-        <span class="n">${s.n} ${s.unit}</span>
-        <span class="deck">${s.axis ? `余裕があれば二択 ${esc(s.axis)}` : ''}</span></label>`;
+        <span class="n">${s.n} ${s.unit}</span></label>`;
     }).join('');
     return head + rows;
   }).join('');
-  const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(examDate)}</b>（${DOW[examDate.getDay()]}）</span><span class="task">本番</span><span class="n"></span><span class="deck"></span></div>`;
+  const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(examDate)}</b>（${DOW[examDate.getDay()]}）</span><span class="task">本番</span><span class="n"></span></div>`;
   document.getElementById('plan-table').innerHTML = html + examRow;
   updateSummary();
   updateProgress();
