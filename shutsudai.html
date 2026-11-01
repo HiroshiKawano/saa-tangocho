@@ -173,6 +173,9 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 .pace-summary { font-size: 13.5px; color: var(--fg2); max-width: none; }
 .pace-summary.warn { color: var(--d2); font-weight: 500; }
 .pace input[type="number"] { width: 4.5em; }
+.pace .chk { display: inline-flex; align-items: center; gap: 4px; }
+.day .date small { color: var(--muted); font-size: 11.5px; }
+.day.over .date b { color: var(--d2); }
 .day.buffer { color: var(--fg2); }
 .then { color: var(--muted); margin: 0 6px; }
 .day .task small { color: var(--muted); font-size: 12px; }
@@ -186,7 +189,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   <header style="display:grid;gap:14px">
     <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
     <h1>SAA 出題率と優先順位</h1>
-    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日 10 問・約 400 問の枠で小分類を丸ごと単位に優先順を付け、日付ではなく回数で進める計画にした。</p>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、1 日 10 問・約 400 問の枠で小分類を丸ごと単位に優先順を付け、11/2 から土日を除いた平日に 1 回ずつ割り当てた。</p>
     <div class="tiles">
       <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
       <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。全問やる唯一の分野</div></div>
@@ -248,8 +251,8 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="plan">
     <h2>日程</h2>
-    <p>日付ではなく回数で管理する。勉強できた日に 1 回分（10 問、解いて見直して 40 分）を進め、終わったらチェックを入れる。何日休んでも表は崩れない。1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回とし、今日から試験日までの日数から休む見込みを引いた「勉強できる日」と残りの回数を突き合わせて、余裕を下に出す。</p>
-    <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-30"><label for="off">休む日数の見込み</label><input type="number" id="off" min="0" max="120" step="1" value="30"></div>
+    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回分（10 問、解いて見直して 40 分）ずつ割り当てた。祝日は平日扱いにしてあるが、休むなら切り替えられる。1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回とし、試験前日までの勉強日と突き合わせて予備の日数を出す。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
+    <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="start">開始日</label><input type="date" id="start" value="2026-11-02"><label for="exam">試験日</label><input type="date" id="exam" value="2027-01-30"><label class="chk"><input type="checkbox" id="skiphol"> 祝日も休む</label></div>
     <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
     <div class="plan-foot"><span id="plan-progress"></span><button type="button" id="plan-reset">チェックを全部外す</button></div>
@@ -505,21 +508,36 @@ const PHASE_INFO = [
   { dom: null, title: '間違えた問題の 2 周目', why: '1 周で間違えた問題だけを解いた順に解き直す。落とした問題は二択対照表にカードを足す。正答率 80% 以上で受験。' },
 ];
 
-// ---- 日付ではなく回数で組む。勉強できた日に 1 回分を進める ----
+// ---- 平日だけに 1 回ずつ割り当てる。土日は休み。祝日は既定では勉強日（切り替え可） ----
 const DEFAULT_DAILY = 10;
+const DEFAULT_START = new Date(2026, 10, 2);
 const DEFAULT_EXAM = new Date(2027, 0, 30);
-const DEFAULT_OFF = 30;
 const REVIEW_RATE = 0.3;
 const DOW = ['日', '月', '火', '水', '木', '金', '土'];
+const HOLIDAYS = { '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日', '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日', '2027-02-23': '天皇誕生日' };
 const KEY_DAILY = 'saa-priority-daily-v3';
+const KEY_START = 'saa-priority-start-v1';
 const KEY_EXAM = 'saa-priority-exam-v2';
-const KEY_OFF = 'saa-priority-off-v1';
+const KEY_SKIPHOL = 'saa-priority-skiphol-v1';
 const KEY_DONE = 'saa-priority-done-v2';
 const fmt = d => `${d.getMonth() + 1}/${d.getDate()}`;
-const diffDays = (a, b) => Math.round((b - a) / 86400000);
+const fmtDow = d => `${fmt(d)}（${DOW[d.getDay()]}）`;
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const parseDate = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
 const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const todayDate = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+const holidayOf = d => HOLIDAYS[toISO(d)];
+
+// 開始日から試験前日までの勉強日（平日。祝日は skipHol が真なら除く）
+function studyDates(start, exam, skipHol) {
+  const out = [];
+  for (let d = start; d < exam; d = addDays(d, 1)) {
+    if (isWeekend(d) || (skipHol && holidayOf(d))) continue;
+    out.push(d);
+  }
+  return out;
+}
 
 // 端数の回が 1 回の半分未満なら、前の回にまとめる（2 問だけの回を作らない）
 function mergeSmallLast(list, daily) {
@@ -559,23 +577,36 @@ function buildSessions(daily) {
   const review = Array.from({ length: Math.ceil(reviewN / daily) }, (_, i) => ({
     review: true, n: Math.min(daily, reviewN - i * daily), phase: REVIEW_PHASE, axis: i % 2 ? '落とした印だけ' : '全軸を通しで',
   }));
-  const sessions = [...mergeSmallLast(first, daily), ...mergeSmallLast(review, daily)].map((s, i) => ({ ...s, no: i + 1 }));
-  return { sessions, total, reviewN, firstCount: sessions.filter(s => !s.review).length };
+  return { sessions: [...mergeSmallLast(first, daily), ...mergeSmallLast(review, daily)], total, reviewN };
+}
+
+// 回に日付を付ける。勉強日が足りない分は date が null のまま残る
+function buildSchedule(daily, start, exam, skipHol) {
+  const { sessions, total, reviewN } = buildSessions(daily);
+  const dates = studyDates(start, exam, skipHol);
+  const dated = sessions.map((s, i) => ({ ...s, no: i + 1, date: dates[i] || null }));
+  return { sessions: dated, total, reviewN, dates, firstCount: dated.filter(s => !s.review).length, spare: dates.length - dated.length };
 }
 
 const store = {
-  get(key, fallback, parse) { try { const v = parse(localStorage.getItem(key)); return v === null || v === undefined || Number.isNaN(v) ? fallback : v; } catch (e) { return fallback; } },
+  get(key, fallback, parse) { try { const raw = localStorage.getItem(key); const v = raw === null ? null : parse(raw); return v === null || v === undefined || Number.isNaN(v) ? fallback : v; } catch (e) { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* 保存できない環境では無視 */ } },
 };
 const clampInt = (v, lo, hi) => (Number.isInteger(v) && v >= lo && v <= hi ? v : null);
-let daily = store.get(KEY_DAILY, DEFAULT_DAILY, v => (v === null ? null : clampInt(Number(v), 5, 30)));
+let daily = store.get(KEY_DAILY, DEFAULT_DAILY, v => clampInt(Number(v), 5, 30));
+let startDate = store.get(KEY_START, DEFAULT_START, parseDate);
 let examDate = store.get(KEY_EXAM, DEFAULT_EXAM, parseDate);
-let offDays = store.get(KEY_OFF, DEFAULT_OFF, v => (v === null ? null : clampInt(Number(v), 0, 120)));
-let done = store.get(KEY_DONE, new Set(), v => (v ? new Set(JSON.parse(v)) : null));
-let schedule = buildSessions(daily);
+let skipHol = store.get(KEY_SKIPHOL, false, v => v === '1');
+let done = store.get(KEY_DONE, new Set(), v => new Set(JSON.parse(v)));
+let schedule = buildSchedule(daily, startDate, examDate, skipHol);
 
 const phaseTotal = i => (i === REVIEW_PHASE ? schedule.reviewN : PLAN_ITEMS.filter(q => q.phase === i).reduce((s, q) => s + q.n, 0));
-const sessionRange = ss => (ss.length === 1 ? `第 ${ss[0].no} 回` : `第 ${ss[0].no}〜${ss[ss.length - 1].no} 回`);
+const dateRange = ss => {
+  const dated = ss.filter(s => s.date);
+  if (!dated.length) return '日程に入らない';
+  const tail = dated.length < ss.length ? '〜（日程に入らない回あり）' : `〜${fmt(dated[dated.length - 1].date)}`;
+  return `${fmt(dated[0].date)}${tail}`;
+};
 
 function renderPhases() {
   document.getElementById('phases').innerHTML = PHASE_INFO.map((p, i) => {
@@ -583,7 +614,7 @@ function renderPhases() {
     if (!ss.length) return '';
     const ids = PLAN_ITEMS.filter(q => q.phase === i).map(q => `${q.id}（${q.n}）`).join('・');
     return `<div class="phase" style="--c:${p.dom ? colorOf(p.dom) : 'var(--accent)'}">
-      <div class="no">${i + 1}<small>${sessionRange(ss)}</small></div>
+      <div class="no">${i + 1}<small>${dateRange(ss)}</small></div>
       <div class="body"><h3>${esc(p.title)}<span class="phase-n">${phaseTotal(i)} 問 · ${ss.length} 回</span></h3><p>${esc(p.why)}</p>${ids ? `<p class="ids">解く順と問数: ${esc(ids)}</p>` : ''}</div></div>`;
   }).join('');
 }
@@ -593,17 +624,23 @@ function segText(s) {
   return `<i class="cat" style="--c:${colorOf(s.item.dom)}"></i>${esc(s.item.id)} ${esc(s.item.short)} <small>${amount}</small>`;
 }
 
+function dateCell(s) {
+  if (!s.date) return `<span class="date over"><b>日程外</b><br><small>第 ${s.no} 回</small></span>`;
+  const hol = holidayOf(s.date);
+  return `<span class="date"><b>${fmt(s.date)}</b>（${DOW[s.date.getDay()]}）${hol ? `<span class="hol" title="${esc(hol)}">祝</span>` : ''}<br><small>第 ${s.no} 回</small></span>`;
+}
+
 function renderPlan() {
   const { sessions } = schedule;
   const html = PHASE_INFO.map((p, i) => {
     const ss = sessions.filter(s => s.phase === i);
     if (!ss.length) return '';
-    const head = `<div class="ph">${i + 1} ${esc(p.title)}<span>${sessionRange(ss)} · ${phaseTotal(i)} 問</span></div>`;
+    const head = `<div class="ph">${i + 1} ${esc(p.title)}<span>${dateRange(ss)} · ${phaseTotal(i)} 問 · ${ss.length} 回</span></div>`;
     const rows = ss.map(s => {
       const key = `s${s.no}`;
       const task = s.review ? '間違えた問題の 2 周目' : s.segs.map(segText).join('<span class="then">→</span>');
-      return `<label class="day"><input type="checkbox" data-key="${key}" ${done.has(key) ? 'checked' : ''}>
-        <span class="date"><b>第 ${s.no} 回</b></span>
+      return `<label class="day${s.date ? '' : ' over'}"><input type="checkbox" data-key="${key}" ${done.has(key) ? 'checked' : ''}>
+        ${dateCell(s)}
         <span class="task">${task}</span>
         <span class="n">${s.n} 問</span>
         <span class="deck">二択 ${esc(s.axis)}</span></label>`;
@@ -612,24 +649,32 @@ function renderPlan() {
   }).join('');
   const examRow = `<div class="day exam"><span></span><span class="date"><b>${fmt(examDate)}</b>（${DOW[examDate.getDay()]}）</span><span class="task">本番</span><span class="n"></span><span class="deck"></span></div>`;
   document.getElementById('plan-table').innerHTML = html + examRow;
+  updateSummary();
   updateProgress();
 }
 
-function updateProgress() {
-  const { sessions, total, reviewN, firstCount } = schedule;
-  const doneList = sessions.filter(s => done.has(`s${s.no}`));
-  const remaining = sessions.length - doneList.length;
-  const daysLeft = diffDays(todayDate(), examDate);
-  const studyDays = daysLeft - offDays;
-  const spare = studyDays - remaining;
+function updateSummary() {
+  const { sessions, total, reviewN, dates, firstCount, spare } = schedule;
+  const holCount = dates.filter(holidayOf).length;
+  const first = sessions.filter(s => !s.review);
+  const review = sessions.filter(s => s.review);
   const summary = document.getElementById('plan-summary');
-  const base = `全 ${sessions.length} 回（1 周 ${firstCount} 回 ${total} 問、2 周目 ${sessions.length - firstCount} 回 ${reviewN} 問）。今日から試験まで ${daysLeft} 日、休む見込み ${offDays} 日を引いて勉強できる日は ${studyDays} 日。残り ${remaining} 回なので`;
+  const base = `${fmtDow(startDate)}から試験前日まで、土日を除いた勉強日は ${dates.length} 日${skipHol ? '（祝日も除く）' : holCount ? `（祝日 ${holCount} 日を含む）` : ''}。全 ${sessions.length} 回のうち 1 周 ${firstCount} 回 ${total} 問は ${dateRange(first)}、2 周目 ${review.length} 回 ${reviewN} 問は ${dateRange(review)}。`;
   summary.textContent = spare >= 0
-    ? `${base}余裕は ${spare} 日。`
-    : `${base}${-spare} 回足りない。15 問の日を ${-spare} 回作るか、1 周の末尾（4-3-3 → 4-1-10 → 4-1-5 の順）から ${-spare * daily} 問分を外す。`;
+    ? `${base}予備の勉強日は ${spare} 日。`
+    : `${base}${-spare} 回が日程に入らない。試験日を後ろにするか、1 周の末尾（4-3-3 → 4-1-10 → 4-1-5 の順）から ${-spare * daily} 問分を外す。`;
   summary.classList.toggle('warn', spare < 0);
+}
+
+function updateProgress() {
+  const { sessions } = schedule;
+  const today = todayDate();
+  const planned = sessions.filter(s => s.date && s.date <= today).length;
+  const doneList = sessions.filter(s => done.has(`s${s.no}`));
   const q = doneList.reduce((s, d) => s + d.n, 0);
-  document.getElementById('plan-progress').textContent = `終わった回 ${doneList.length} / ${sessions.length}　解いた問数 ${q} 問。チェックと設定はこのブラウザだけに保存される。`;
+  const gap = planned - doneList.length;
+  const pace = gap > 0 ? `遅れ ${gap} 回` : gap < 0 ? `先行 ${-gap} 回` : '予定どおり';
+  document.getElementById('plan-progress').textContent = `今日 ${fmt(today)} までの予定 ${planned} 回、終わった回 ${doneList.length} 回（${pace}）、解いた問数 ${q} 問。遅れても日付は気にせず次の回を進める。チェックと設定はこのブラウザだけに保存される。`;
 }
 
 function renderNext() {
@@ -645,7 +690,7 @@ function renderTile() {
 }
 
 function rebuild() {
-  schedule = buildSessions(daily);
+  schedule = buildSchedule(daily, startDate, examDate, skipHol);
   renderTile();
   renderSub();
   renderPhases();
@@ -654,29 +699,37 @@ function rebuild() {
 }
 
 const dailyInput = document.getElementById('daily');
+const startInput = document.getElementById('start');
 const examInput = document.getElementById('exam');
-const offInput = document.getElementById('off');
+const skipHolInput = document.getElementById('skiphol');
 dailyInput.value = daily;
+startInput.value = toISO(startDate);
 examInput.value = toISO(examDate);
-offInput.value = offDays;
+skipHolInput.checked = skipHol;
 dailyInput.addEventListener('change', () => {
   daily = clampInt(Number(dailyInput.value), 5, 30) ?? DEFAULT_DAILY;
   dailyInput.value = daily;
   store.set(KEY_DAILY, String(daily));
   rebuild();
 });
+startInput.addEventListener('change', () => {
+  const d = parseDate(startInput.value);
+  startDate = d && d < examDate ? d : startDate;
+  startInput.value = toISO(startDate);
+  store.set(KEY_START, toISO(startDate));
+  rebuild();
+});
 examInput.addEventListener('change', () => {
   const d = parseDate(examInput.value);
-  examDate = d && d > todayDate() ? d : examDate;
+  examDate = d && d > startDate ? d : examDate;
   examInput.value = toISO(examDate);
   store.set(KEY_EXAM, toISO(examDate));
-  renderPlan();
+  rebuild();
 });
-offInput.addEventListener('change', () => {
-  offDays = clampInt(Number(offInput.value), 0, 120) ?? DEFAULT_OFF;
-  offInput.value = offDays;
-  store.set(KEY_OFF, String(offDays));
-  updateProgress();
+skipHolInput.addEventListener('change', () => {
+  skipHol = skipHolInput.checked;
+  store.set(KEY_SKIPHOL, skipHol ? '1' : '0');
+  rebuild();
 });
 document.getElementById('plan-table').addEventListener('change', e => {
   const key = e.target.dataset?.key;
