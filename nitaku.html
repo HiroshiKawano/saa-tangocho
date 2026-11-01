@@ -192,10 +192,15 @@
   .deck .ct { flex: none; padding-top: 3px; }
   .deck .pill { flex: none; margin-top: 2px; }
   .ct { font-size: 13px; color: var(--ink-3); }
-  /* 軸内の分野（card.tag）。押すとその分野のカードだけを出す。末尾の「表で見る」は同じ軸を一覧表にする */
-  .parts { display: flex; flex-wrap: wrap; gap: 2px 4px; margin: 6px 0 0 40px; }
-  .parts .link { padding: 2px 6px; font-size: 12.5px; }
-  .parts .link.tbl-link { color: var(--accent-ink); }
+  /* 軸内の 7 枚以下のグループ。小さなボタンの見た目で、押すとその組のカードだけを出す。末尾の「表で見る」だけ文字リンクのまま */
+  .parts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 8px 0 0 40px; }
+  .parts .link {
+    min-height: 34px; padding: 4px 12px; font-size: 13px; color: var(--ink-2); font-weight: 500;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-decoration: none;
+  }
+  .parts .link:hover { background: var(--surface-2); }
+  .parts .link .ct { margin-left: 4px; }
+  .parts .link.tbl-link { min-height: 0; padding: 4px 6px; border: 0; background: none; color: var(--accent-ink); font-weight: 400; text-decoration: underline; }
 
   /* ---------- 二択の候補（答え側、正解名の位置）。選ぶ方は正解名と同じ大きさで色付き、もう一方は小さく薄く ---------- */
   .vs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font-family: var(--font-jp); font-weight: 500; color: var(--ink-3); }
@@ -539,9 +544,9 @@
       return `
         <header class="head">
           <h1>SAA 二択対照表</h1>
-          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 19:05 版</span>
+          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 19:09 版</span>
         </header>
-        <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。候補と制約が出るので、どちらを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
+        <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。制約だけが出るので、どのサービスを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
           <button class="btn" data-action="all">全軸を通しで <span class="ct">${ALL_CARDS.length}</span></button>
           <button class="btn" data-action="table-all">全軸を表で見る</button>
@@ -555,7 +560,7 @@
       const m = missedIn(flatCards(deck));
       // 7 枚以下のグループ（分野の組）ごとのボタン。押すとそのグループだけを出す
       const partBtns = `<span class="parts">${groupsOf(deck).map((g, gi) =>
-            `<button class="link" data-action="part" data-id="${esc(deck.id)}" data-group="${gi}">${esc(g.label)} ${g.idx.length}</button>`,
+            `<button class="link" data-action="part" data-id="${esc(deck.id)}" data-group="${gi}">${esc(g.label)}<span class="ct">${g.idx.length}</span></button>`,
           ).join('')}<button class="link tbl-link" data-action="table" data-id="${esc(deck.id)}">表で見る</button></span>`;
       return `
         <div class="deck" data-action="deck" data-id="${esc(deck.id)}">
