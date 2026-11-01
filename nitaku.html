@@ -413,7 +413,39 @@
     }));
     const ALL_CARDS = DECKS.flatMap(flatCards);
     // 軸内の分野（card.tag）を出現順に並べたもの
-    const partsOf = (deck) => [...new Set(deck.cards.map((c) => c.tag).filter(Boolean))];
+    const partsOf = (deck) => [...new Set(deck.cards.map((c) => c.tag || 'その他'))];
+    // 一度に覚えられるのは 7 枚程度なので、軸の中を 7 枚以下のグループに分ける。
+    // 分野はなるべく丸ごと 1 つのグループに入れ、8 枚以上の分野だけ 7 枚以下に等分（①②…）する。
+    // 分野を大きい順に、入る余地のある最初のグループへ詰める（例: ストレージ 6＋分析 1、ネットワーク 4＋DB 3）。
+    // 各グループは { label, idx: 軸内のカード添字 } で、グループの並びは最初のカードが早い順
+    const GROUP_MAX = 7;
+    const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩'];
+    function groupsOf(deck) {
+      const units = partsOf(deck).flatMap((tag) => {
+        const idx = deck.cards.map((c, i) => ((c.tag || 'その他') === tag ? i : -1)).filter((i) => i >= 0);
+        const k = Math.ceil(idx.length / GROUP_MAX);
+        if (k <= 1) return [{ label: tag, idx }];
+        const base = Math.floor(idx.length / k);
+        const extra = idx.length % k;
+        const starts = Array.from({ length: k }, (_, j) => j * base + Math.min(j, extra));
+        return starts.map((s, j) => ({ label: `${tag} ${CIRCLED[j] || j + 1}`, idx: idx.slice(s, s + base + (j < extra ? 1 : 0)) }));
+      });
+      const ordered = units.map((u, order) => ({ ...u, order }));
+      const sorted = [...ordered].sort((a, b) => b.idx.length - a.idx.length);
+      const bins = sorted.reduce((acc, u) => {
+        const i = acc.findIndex((b) => b.size + u.idx.length <= GROUP_MAX);
+        if (i < 0) return [...acc, { units: [u], size: u.idx.length }];
+        return acc.map((b, j) => (j === i ? { units: [...b.units, u], size: b.size + u.idx.length } : b));
+      }, []);
+      // グループの並びは分野の出現順（同じ分野の ①② が隣り合う）
+      return bins
+        .map((b) => ({
+          label: b.units.map((u) => u.label).join('・'),
+          idx: b.units.flatMap((u) => u.idx).sort((a, b) => a - b),
+          order: Math.min(...b.units.map((u) => u.order)),
+        }))
+        .sort((a, b) => a.order - b.order);
+    }
     // サービスのアイコン（card.icon に並ぶキー → 図形 w・h・d とカテゴリ色 color）
     const ICONS = JSON.parse(document.getElementById('icons-data').textContent);
 
@@ -507,7 +539,7 @@
       return `
         <header class="head">
           <h1>SAA 二択対照表</h1>
-          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 18:53 版</span>
+          <span class="meta">${DECKS.length} 軸 · ${ALL_CARDS.length} 枚 · 11/1 19:05 版</span>
         </header>
         <p class="lead">正しそうな候補が 2 つ残ったとき、問題文のどの制約で決めるか。候補と制約が出るので、どちらを選ぶか答えてから、タップで選ぶ方と理由を表示。左スワイプで次へ、右スワイプで前へ。</p>
         <div class="quick">
@@ -521,11 +553,10 @@
     }
     function renderDeckRow(deck) {
       const m = missedIn(flatCards(deck));
-      const parts = partsOf(deck);
-      const partBtns = `<span class="parts">${parts.map((p) => {
-            const n = deck.cards.filter((c) => c.tag === p).length;
-            return `<button class="link" data-action="part" data-id="${esc(deck.id)}" data-tag="${esc(p)}">${esc(p)} ${n}</button>`;
-          }).join('')}<button class="link tbl-link" data-action="table" data-id="${esc(deck.id)}">表で見る</button></span>`;
+      // 7 枚以下のグループ（分野の組）ごとのボタン。押すとそのグループだけを出す
+      const partBtns = `<span class="parts">${groupsOf(deck).map((g, gi) =>
+            `<button class="link" data-action="part" data-id="${esc(deck.id)}" data-group="${gi}">${esc(g.label)} ${g.idx.length}</button>`,
+          ).join('')}<button class="link tbl-link" data-action="table" data-id="${esc(deck.id)}">表で見る</button></span>`;
       return `
         <div class="deck" data-action="deck" data-id="${esc(deck.id)}">
           <button class="deck-main" data-action="deck" data-id="${esc(deck.id)}">
@@ -749,7 +780,10 @@
       },
       part: (el) => {
         const deck = DECKS.find((d) => d.id === el.dataset.id);
-        if (deck) start(`${deckShort(deck)} · ${el.dataset.tag}`, flatCards(deck).filter((c) => c.tag === el.dataset.tag));
+        const group = deck && groupsOf(deck)[Number(el.dataset.group)];
+        if (!group) return;
+        const members = new Set(group.idx);
+        start(`${deckShort(deck)} · ${group.label}`, flatCards(deck).filter((_, i) => members.has(i)));
       },
       all: () => start('全軸を通しで', ALL_CARDS),
       table: (el) => {
