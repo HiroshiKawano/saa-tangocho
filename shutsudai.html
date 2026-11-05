@@ -188,7 +188,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
   <header style="display:grid;gap:14px">
     <div class="eyebrow">AWS SAA-C03 · 過去問サイト 773 問の分析 · 2026-10-31</div>
     <h1>SAA 出題率と優先順位</h1>
-    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、11/2 から平日だけで、まず二択対照表を 1 日 1 軸で 12 日、続けて過去問 402 問を小分類丸ごと単位の優先順で 1 回 10 問ずつ進める計画にした。</p>
+    <p class="lead">過去問サイトの 773 問を大分類・中分類・小分類で数え、本番の配点と突き合わせて、11/2 から土日祝と木曜を除いた日だけで、まず二択対照表を 1 日 1 軸で 12 日、続けて過去問 402 問を小分類丸ごと単位の優先順で 1 回 10 問ずつ進める計画にした。</p>
     <div class="tiles">
       <div class="tile"><div class="num">773<small>問</small></div><div class="cap">大分類 4・中分類 14・小分類 75</div></div>
       <div class="tile"><div class="num">−6<small>pt</small></div><div class="cap">分野2 はサイトの比率が本番配点より低い。全問やる唯一の分野</div></div>
@@ -250,7 +250,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 
   <section id="plan">
     <h2>日程</h2>
-    <p>平日だけで組む。土日は雑用で勉強できない前提なので、11/2（月）から土日を除いた平日に 1 回ずつ割り当てた。祝日も休む。最初の 12 回は二択対照表で 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。過去問は 11/23 以降の最初の勉強日から 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
+    <p>月・火・水・金で組む。土日は雑用で勉強できない前提で、木曜も休みにして、11/2（月）から土日と木曜を除いた日に 1 回ずつ割り当てた。祝日も休む。最初の 12 回は二択対照表で 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。過去問は 11/23 以降の最初の勉強日から 1 回 10 問で 1 周 402 問を 40 回、間違い 3 割の 2 周目を 12 回。1 日の枠は 1 時間で、過去問の 1 問にかける時間は正誤で変える。理由を言えて正解した問題は解説を 1 分で流して動画は見ない、間違いと迷った問題は解説と動画で 10 分かけて 3 つをメモする。正答率 6 割なら 10 問で 60 分前後に収まる。遅れた日があっても日付は気にせず次の回を進め、下の進み具合で遅れの回数を見る。</p>
     <div class="pace"><label for="daily">1 回の問数</label><input type="number" id="daily" min="5" max="30" step="5" value="10"><label for="start">開始日</label><input type="date" id="start" value="2026-11-02"><label for="pqstart">過去問の開始日</label><input type="date" id="pqstart" value="2026-11-23"><label for="exam">試験日</label><input type="date" id="exam" value="2027-02-06"><label class="chk"><input type="checkbox" id="skiphol" checked> 祝日も休む</label></div>
     <p class="pace-summary" id="plan-summary"></p>
     <div class="plan" id="plan-table"></div>
@@ -511,14 +511,14 @@ const inPlan = s => PLAN_IDS.has(s.id);
 const NITAKU_PHASE = 0;
 const REVIEW_PHASE = 4;
 const PHASE_INFO = [
-  { dom: null, title: '二択対照表を 1 日 1 軸', why: '最後の 2 択の決め方を先に固める。制約を読んだら、選ぶサービスと、もう一方の候補を落とす理由の両方を口に出してからめくり、どちらかが言えなければ落とした印を付ける。軸 1 から順に 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。' },
+  { dom: null, title: '二択対照表を 1 日 1 軸', why: '最後の 2 択の決め方を先に固める。制約を読んだら、選ぶサービスと、もう一方との違いの両方を口に出してからめくり、どちらかが言えなければ落とした印を付ける。軸 1 から順に 1 日 1 軸、42 枚ある軸 6 だけ前半・後半の 2 日に分ける。' },
   { dom: '2', title: '分野2 弾力性を全問', why: 'サイトでは 20% しかないが本番は 26%。1 問あたりの価値が最も高く、1 問しかない小分類まで含めて全部解く。2-1 の疎結合（SQS・SNS・EventBridge・コンテナ・サーバーレス）と 2-2 の複数 AZ・DR が中心。' },
   { dom: '1', title: '分野1 セキュアの主要 7 小分類', why: '本番で最大の 30%。IAM ポリシーと SCP、WAF・Shield と外部接続、暗号化と KMS、データ保護の順に解く。' },
   { dom: '4', title: '分野4 コストの主要 5 小分類', why: '1 問あたりの価値が分野2 に次いで高い。4-2-3 の購入オプションと Lambda・EC2・Fargate、4-1 のストレージ階層とライフサイクル、4-3-3 の DB サービス選択。分野3 は 1 問の価値が最も低いので 1 周に入れず、二択対照表の軸 4・9・10 で補う。' },
   { dom: null, title: '間違えた問題の 2 周目', why: '1 周で間違えた問題だけを解いた順に解き直す。落とした問題は二択対照表にカードを足す。正答率 80% 以上で受験。' },
 ];
 
-// ---- 平日だけに 1 回ずつ割り当てる。土日は休み。祝日は既定では勉強日（切り替え可） ----
+// ---- 土日と木曜を除いた日に 1 回ずつ割り当てる。祝日は既定では休み（切り替え可） ----
 const DEFAULT_DAILY = 10;
 const DEFAULT_START = new Date(2026, 10, 2);
 const DEFAULT_EXAM = new Date(2027, 1, 6);
@@ -539,14 +539,15 @@ const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 
 const parseDate = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
 const toISO = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const todayDate = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
-const isWeekend = d => d.getDay() === 0 || d.getDay() === 6;
+const REST_DOWS = new Set([0, 4, 6]); // 日・木・土は休み
+const isRestDay = d => REST_DOWS.has(d.getDay());
 const holidayOf = d => HOLIDAYS[toISO(d)];
 
-// 開始日から試験前日までの勉強日（平日。祝日は skipHol が真なら除く）
+// 開始日から試験前日までの勉強日（土日と木曜を除く。祝日は skipHol が真なら除く）
 function studyDates(start, exam, skipHol) {
   const out = [];
   for (let d = start; d < exam; d = addDays(d, 1)) {
-    if (isWeekend(d) || (skipHol && holidayOf(d))) continue;
+    if (isRestDay(d) || (skipHol && holidayOf(d))) continue;
     out.push(d);
   }
   return out;
@@ -702,7 +703,7 @@ function updateSummary() {
   const review = sessions.filter(s => s.review);
   const summary = document.getElementById('plan-summary');
   const gapText = gap.length ? `空き ${gap.length} 日（${fmt(gap[0])}〜${fmt(gap[gap.length - 1])}）、` : '';
-  const base = `${fmtDow(startDate)}から試験前日まで、土日${skipHol ? 'と祝日' : ''}を除いた勉強日は ${dates.length} 日${!skipHol && holCount ? `（祝日 ${holCount} 日を含む）` : ''}。全 ${sessions.length} 回のうち、二択対照表 ${nitaku.length} 回は ${dateRange(nitaku)}、${gapText}過去問 1 周 ${first.length} 回 ${total} 問は ${dateRange(first)}、2 周目 ${review.length} 回 ${reviewN} 問は ${dateRange(review)}。`;
+  const base = `${fmtDow(startDate)}から試験前日まで、土日・木曜${skipHol ? '・祝日' : ''}を除いた勉強日は ${dates.length} 日${!skipHol && holCount ? `（祝日 ${holCount} 日を含む）` : ''}。全 ${sessions.length} 回のうち、二択対照表 ${nitaku.length} 回は ${dateRange(nitaku)}、${gapText}過去問 1 周 ${first.length} 回 ${total} 問は ${dateRange(first)}、2 周目 ${review.length} 回 ${reviewN} 問は ${dateRange(review)}。`;
   summary.textContent = spare >= 0
     ? `${base}予備の勉強日は ${spare} 日。`
     : `${base}${-spare} 回が日程に入らない。試験日を後ろにするか、1 周の末尾（4-3-3 → 4-1-10 → 4-1-5 の順）から ${-spare * daily} 問分を外す。`;
